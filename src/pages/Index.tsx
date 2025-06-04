@@ -26,15 +26,30 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="text-center">
             <div className="mb-8">
-              <div className="w-24 h-24 bg-white rounded-full mx-auto mb-6 flex items-center justify-center">
-                <User className="h-12 w-12 text-blue-900" />
+              <div className="w-32 h-32 bg-white rounded-full mx-auto mb-6 overflow-hidden">
+                <img 
+                  src="/lovable-uploads/2f83aaf7-4dcd-4bb1-8c92-a40a1c70e174.png" 
+                  alt="Bug Plowman"
+                  className="w-full h-full object-cover"
+                />
               </div>
-              <h1 className="text-4xl font-bold mb-4">Your Name</h1>
+              <h1 className="text-4xl font-bold mb-4">Bug Plowman</h1>
               <p className="text-xl text-blue-100 max-w-2xl mx-auto">
-                Computer Science Student | California State University, Monterey Bay
+                CS Online Summer '25 Cohort | California State University, Monterey Bay
               </p>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* CSUMB Logo Section */}
+      <div className="bg-white py-8">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <img 
+            src="/lovable-uploads/d0c46ee8-8723-4c37-9484-4d52fb32b0ef.png" 
+            alt="CSUMB Logo"
+            className="h-16 mx-auto"
+          />
         </div>
       </div>
 
@@ -47,10 +62,10 @@ const Index = () => {
               About Me
             </h2>
             <p className="text-gray-600 leading-relaxed">
-              Welcome to my Individual Learning Plan (ILP) Portfolio. I am a Computer Science student at 
-              California State University, Monterey Bay, passionate about technology and innovation. 
-              This portfolio showcases my academic journey and the projects I've completed throughout 
-              the program.
+              Welcome to my Individual Learning Plan (ILP) Portfolio. I am a Computer Science student in the 
+              CS Online Summer '25 Cohort at California State University, Monterey Bay, passionate about 
+              technology and innovation. This portfolio showcases my academic journey and the projects I've 
+              completed throughout the program.
             </p>
           </div>
 
@@ -60,8 +75,8 @@ const Index = () => {
               My Goals
             </h2>
             <ul className="text-gray-600 space-y-2">
-              <li>• Develop strong software engineering skills</li>
-              <li>• Master computer science fundamentals</li>
+              <li>• Develop strong software engineering and reverse engineering skills</li>
+              <li>• Master computer science, distributed systems, large networks, and malware analysis fundamentals</li>
               <li>• Build a portfolio of meaningful projects</li>
               <li>• Prepare for a successful career in technology</li>
             </ul>
@@ -69,44 +84,51 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Program Outcomes */}
+      {/* Program Overview */}
       <div className="bg-white py-12">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-gray-900 mb-4 flex items-center justify-center">
               <GraduationCap className="h-8 w-8 mr-3 text-blue-600" />
-              Program Learning Outcomes
+              CS Online Program
             </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              The Computer Science program at CSUMB prepares students with comprehensive technical skills 
-              and knowledge for success in the technology industry.
+            <p className="text-gray-600 max-w-3xl mx-auto">
+              The CS Online degree completion program from California State University, Monterey Bay (CSUMB) 
+              offers both solid computer science theories and hands-on software development practice.
             </p>
+          </div>
+
+          <div className="mb-8">
+            <h3 className="text-xl font-semibold text-gray-900 mb-4">Career Preparation</h3>
+            <p className="text-gray-600 mb-4">
+              This combination equips graduates with the skills needed to excel in the fast-paced information 
+              economy, preparing them for careers such as:
+            </p>
+            <ul className="text-gray-600 space-y-1 ml-6">
+              <li>• Software engineer</li>
+              <li>• Mobile app developer</li>
+              <li>• Technology project manager</li>
+            </ul>
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">
             <div className="bg-gray-50 rounded-lg p-6">
-              <h3 className="font-semibold text-gray-900 mb-3">Technical Proficiency</h3>
-              <p className="text-gray-600 text-sm">
-                Master programming languages, software development methodologies, and computer science principles.
-              </p>
+              <h3 className="font-semibold text-gray-900 mb-3">Program Highlights</h3>
+              <ul className="text-gray-600 text-sm space-y-2">
+                <li>• Complete the program in 24 months, fully online</li>
+                <li>• Cohorts limited to about 35 students for personalized guidance</li>
+                <li>• Interactive learning with faculty and industry professionals</li>
+                <li>• Individualized, socially connected learning experience</li>
+              </ul>
             </div>
             <div className="bg-gray-50 rounded-lg p-6">
-              <h3 className="font-semibold text-gray-900 mb-3">Problem Solving</h3>
-              <p className="text-gray-600 text-sm">
-                Develop analytical thinking and systematic approaches to complex computational problems.
-              </p>
-            </div>
-            <div className="bg-gray-50 rounded-lg p-6">
-              <h3 className="font-semibold text-gray-900 mb-3">Collaboration</h3>
-              <p className="text-gray-600 text-sm">
-                Work effectively in teams using modern development tools and project management practices.
-              </p>
-            </div>
-            <div className="bg-gray-50 rounded-lg p-6">
-              <h3 className="font-semibold text-gray-900 mb-3">Ethics & Society</h3>
-              <p className="text-gray-600 text-sm">
-                Understand the social impact of technology and develop ethical decision-making skills.
-              </p>
+              <h3 className="font-semibold text-gray-900 mb-3">Academic Excellence</h3>
+              <ul className="text-gray-600 text-sm space-y-2">
+                <li>• Curriculum updated with industry advisory board input</li>
+                <li>• Comprehensive portfolio and capstone project required</li>
+                <li>• Taught by tenure-track faculty and industry professionals</li>
+                <li>• Hands-on, real-world collaborative projects</li>
+              </ul>
             </div>
           </div>
         </div>
