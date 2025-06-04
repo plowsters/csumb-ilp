@@ -8,7 +8,7 @@ const CST300 = () => {
       courseCode="CST 300"
       courseName="Major ProSeminar"
       units={4}
-      description="A comprehensive orientation course for the School of Computing and Design's undergraduate degree BS Computer Science. Students develop online collaboration, study, and presentation skills; research history and trends in computer science; analyze information; set educational and career goals; develop an Individual Learning Plan (ILP); understand portfolio and capstone processes; and demonstrate professional presentation and problem-solving skills. The course includes both lecture and writing lab components, with students completing portfolio pieces, learning journals, and major papers including an Industry Analysis and Ethics Argument essay."
+      description="Students learn professional writing, presentation, research, and critical-thinking skills within the diversified fields of computer science and communication design. This class also helps students identify and articulate personal, professional, and social goals while further practicing their problem-solving, collaboration, and community-building skills. Students will demonstrate competence in writing skills at the upper division level."
       assignments={[
         {
           title: "Ethics Argument Essay",
