@@ -84,51 +84,44 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Program Overview */}
+      {/* Program Learning Outcomes */}
       <div className="bg-white py-12">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-gray-900 mb-4 flex items-center justify-center">
               <GraduationCap className="h-8 w-8 mr-3 text-blue-600" />
-              CS Online Program
+              Program Learning Outcomes
             </h2>
-            <p className="text-gray-600 max-w-3xl mx-auto">
-              The CS Online degree completion program from California State University, Monterey Bay (CSUMB) 
-              offers both solid computer science theories and hands-on software development practice.
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              The Computer Science program at CSUMB prepares students with comprehensive technical skills 
+              and knowledge for success in the technology industry.
             </p>
-          </div>
-
-          <div className="mb-8">
-            <h3 className="text-xl font-semibold text-gray-900 mb-4">Career Preparation</h3>
-            <p className="text-gray-600 mb-4">
-              This combination equips graduates with the skills needed to excel in the fast-paced information 
-              economy, preparing them for careers such as:
-            </p>
-            <ul className="text-gray-600 space-y-1 ml-6">
-              <li>• Software engineer</li>
-              <li>• Mobile app developer</li>
-              <li>• Technology project manager</li>
-            </ul>
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">
             <div className="bg-gray-50 rounded-lg p-6">
-              <h3 className="font-semibold text-gray-900 mb-3">Program Highlights</h3>
-              <ul className="text-gray-600 text-sm space-y-2">
-                <li>• Complete the program in 24 months, fully online</li>
-                <li>• Cohorts limited to about 35 students for personalized guidance</li>
-                <li>• Interactive learning with faculty and industry professionals</li>
-                <li>• Individualized, socially connected learning experience</li>
-              </ul>
+              <h3 className="font-semibold text-gray-900 mb-3">Technical Proficiency</h3>
+              <p className="text-gray-600 text-sm">
+                Master programming languages, software development methodologies, and computer science principles.
+              </p>
             </div>
             <div className="bg-gray-50 rounded-lg p-6">
-              <h3 className="font-semibold text-gray-900 mb-3">Academic Excellence</h3>
-              <ul className="text-gray-600 text-sm space-y-2">
-                <li>• Curriculum updated with industry advisory board input</li>
-                <li>• Comprehensive portfolio and capstone project required</li>
-                <li>• Taught by tenure-track faculty and industry professionals</li>
-                <li>• Hands-on, real-world collaborative projects</li>
-              </ul>
+              <h3 className="font-semibold text-gray-900 mb-3">Problem Solving</h3>
+              <p className="text-gray-600 text-sm">
+                Develop analytical thinking and systematic approaches to complex computational problems.
+              </p>
+            </div>
+            <div className="bg-gray-50 rounded-lg p-6">
+              <h3 className="font-semibold text-gray-900 mb-3">Collaboration</h3>
+              <p className="text-gray-600 text-sm">
+                Work effectively in teams using modern development tools and project management practices.
+              </p>
+            </div>
+            <div className="bg-gray-50 rounded-lg p-6">
+              <h3 className="font-semibold text-gray-900 mb-3">Ethics & Society</h3>
+              <p className="text-gray-600 text-sm">
+                Understand the social impact of technology and develop ethical decision-making skills.
+              </p>
             </div>
           </div>
         </div>
