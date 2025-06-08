@@ -1,7 +1,8 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Layout from './Layout';
-import { BookOpen, FileText, ExternalLink, Calendar } from 'lucide-react';
+import AssignmentManager, { Assignment } from './AssignmentManager';
+import { BookOpen, FileText, Calendar } from 'lucide-react';
 
 interface CourseTemplateProps {
   courseCode: string;
@@ -26,10 +27,34 @@ const CourseTemplate = ({
   courseName, 
   units, 
   description,
-  projects = [],
-  assignments = [],
   isCompleted = false 
 }: CourseTemplateProps) => {
+  const [assignments, setAssignments] = useState<Assignment[]>([]);
+
+  // Load assignments from localStorage on component mount
+  useEffect(() => {
+    const storageKey = `assignments_${courseCode.replace(' ', '_')}`;
+    const savedAssignments = localStorage.getItem(storageKey);
+    if (savedAssignments) {
+      try {
+        const parsed = JSON.parse(savedAssignments);
+        setAssignments(parsed.map((a: any) => ({
+          ...a,
+          createdAt: new Date(a.createdAt)
+        })));
+      } catch (error) {
+        console.error('Error loading assignments:', error);
+      }
+    }
+  }, [courseCode]);
+
+  // Save assignments to localStorage whenever they change
+  const handleAssignmentsChange = (newAssignments: Assignment[]) => {
+    setAssignments(newAssignments);
+    const storageKey = `assignments_${courseCode.replace(' ', '_')}`;
+    localStorage.setItem(storageKey, JSON.stringify(newAssignments));
+  };
+
   return (
     <Layout>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -71,62 +96,23 @@ const CourseTemplate = ({
           )}
         </div>
 
-        {/* Projects Section */}
+        {/* Projects & Assignments Section */}
         <div className="bg-white rounded-lg shadow-sm border p-8 mb-8">
           <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
             <FileText className="h-5 w-5 mr-2 text-blue-600" />
             Projects & Assignments
           </h3>
           
-          {projects.length > 0 || assignments.length > 0 ? (
-            <div className="space-y-6">
-              {projects.map((project, index) => (
-                <div key={index} className="border-l-4 border-blue-500 pl-4">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h4 className="font-medium text-gray-900 mb-2">{project.title}</h4>
-                      <p className="text-gray-600 text-sm mb-2">{project.description}</p>
-                    </div>
-                    {project.link && (
-                      <a
-                        href={project.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-800 ml-4"
-                      >
-                        <ExternalLink className="h-4 w-4" />
-                      </a>
-                    )}
-                  </div>
-                </div>
-              ))}
-              
-              {assignments.map((assignment, index) => (
-                <div key={index} className="border-l-4 border-green-500 pl-4">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h4 className="font-medium text-gray-900 mb-2">{assignment.title}</h4>
-                      <p className="text-gray-600 text-sm mb-2">{assignment.description}</p>
-                    </div>
-                    {assignment.link && (
-                      <a
-                        href={assignment.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-800 ml-4"
-                      >
-                        <ExternalLink className="h-4 w-4" />
-                      </a>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
+          <AssignmentManager 
+            assignments={assignments}
+            onAssignmentsChange={handleAssignmentsChange}
+          />
+
+          {assignments.length === 0 && (
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center mb-4">
               <FileText className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-              <p className="text-gray-600">
-                Projects and assignments will be added as the course progresses.
+              <p className="text-gray-600 mb-4">
+                No assignments added yet. Click the + button to add your first assignment.
               </p>
             </div>
           )}
