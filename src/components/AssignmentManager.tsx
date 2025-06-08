@@ -88,9 +88,16 @@ const AssignmentManager = ({ assignments, onAssignmentsChange }: AssignmentManag
     setEditingAssignment(null);
   };
 
-  const handleDialogClose = () => {
-    setIsDialogOpen(false);
+  const handleDialogClose = (open: boolean) => {
+    setIsDialogOpen(open);
+    if (!open) {
+      resetForm();
+    }
+  };
+
+  const handleAddClick = () => {
     resetForm();
+    setIsDialogOpen(true);
   };
 
   return (
@@ -140,72 +147,83 @@ const AssignmentManager = ({ assignments, onAssignmentsChange }: AssignmentManag
         </div>
       )}
 
-      <Dialog open={isDialogOpen} onOpenChange={handleDialogClose}>
-        <DialogTrigger asChild>
-          <Button
-            onClick={() => setIsDialogOpen(true)}
-            className="w-12 h-12 rounded-full bg-blue-600 hover:bg-blue-700 text-white"
-          >
-            <Plus className="h-5 w-5" />
-          </Button>
-        </DialogTrigger>
-        
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>
-              {editingAssignment ? 'Edit Assignment' : 'Add New Assignment'}
-            </DialogTitle>
-          </DialogHeader>
+      {assignments.length === 0 && (
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center mb-4">
+          <FileText className="h-12 w-12 text-gray-400 mx-auto mb-3" />
+          <p className="text-gray-600 mb-4">
+            No assignments added yet. Click the + button to add your first assignment.
+          </p>
+        </div>
+      )}
+
+      <div className="flex justify-center">
+        <Dialog open={isDialogOpen} onOpenChange={handleDialogClose}>
+          <DialogTrigger asChild>
+            <Button
+              onClick={handleAddClick}
+              className="w-12 h-12 rounded-full bg-white hover:bg-gray-50 border border-gray-300 text-gray-600 shadow-sm"
+            >
+              <Plus className="h-5 w-5" />
+            </Button>
+          </DialogTrigger>
           
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="title">Title</Label>
-              <Input
-                id="title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Assignment title"
-              />
-            </div>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>
+                {editingAssignment ? 'Edit Assignment' : 'Add New Assignment'}
+              </DialogTitle>
+            </DialogHeader>
             
-            <div>
-              <Label htmlFor="description">Description</Label>
-              <textarea
-                id="description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Assignment description"
-                className="w-full h-20 px-3 py-2 border border-gray-300 rounded-md text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="title">Title</Label>
+                <Input
+                  id="title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="Assignment title"
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="description">Description</Label>
+                <textarea
+                  id="description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Assignment description"
+                  className="w-full h-20 px-3 py-2 border border-gray-300 rounded-md text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="file">Upload File</Label>
+                <input
+                  id="file"
+                  type="file"
+                  onChange={handleFileSelect}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                  accept=".pdf,.docx,.doc,.mp4,.mov,.avi,.java,.c,.cpp,.py,.go,.rs,.sh,.js,.ts,.html,.css"
+                />
+                {selectedFile && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    Selected: {selectedFile.name}
+                  </p>
+                )}
+              </div>
+              
+              <div className="flex justify-end space-x-2">
+                <Button variant="outline" onClick={() => handleDialogClose(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleSave} disabled={!title.trim()}>
+                  {editingAssignment ? 'Update' : 'Add'}
+                </Button>
+              </div>
             </div>
-            
-            <div>
-              <Label htmlFor="file">Upload File</Label>
-              <input
-                id="file"
-                type="file"
-                onChange={handleFileSelect}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                accept=".pdf,.docx,.doc,.mp4,.mov,.avi,.java,.c,.cpp,.py,.go,.rs,.sh,.js,.ts,.html,.css"
-              />
-              {selectedFile && (
-                <p className="text-xs text-gray-500 mt-1">
-                  Selected: {selectedFile.name}
-                </p>
-              )}
-            </div>
-            
-            <div className="flex justify-end space-x-2">
-              <Button variant="outline" onClick={handleDialogClose}>
-                Cancel
-              </Button>
-              <Button onClick={handleSave} disabled={!title.trim()}>
-                {editingAssignment ? 'Update' : 'Add'}
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+          </DialogContent>
+        </Dialog>
+      </div>
     </div>
   );
 };
