@@ -107,15 +107,6 @@ const CourseTemplate = ({
             assignments={assignments}
             onAssignmentsChange={handleAssignmentsChange}
           />
-
-          {assignments.length === 0 && (
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center mb-4">
-              <FileText className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-              <p className="text-gray-600 mb-4">
-                No assignments added yet. Click the + button to add your first assignment.
-              </p>
-            </div>
-          )}
         </div>
 
         {/* Course Resources */}
