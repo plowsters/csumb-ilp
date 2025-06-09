@@ -25,7 +25,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
+      <BrowserRouter basename="/csumb-ilp">
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/cst300" element={<CST300 />} />
