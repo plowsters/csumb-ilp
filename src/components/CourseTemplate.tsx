@@ -30,11 +30,14 @@ const CourseTemplate = ({
   isCompleted = false 
 }: CourseTemplateProps) => {
   const [assignments, setAssignments] = useState<Assignment[]>([]);
+  const [courseResources, setCourseResources] = useState<Assignment[]>([]);
 
   // Load assignments from localStorage on component mount
   useEffect(() => {
-    const storageKey = `assignments_${courseCode.replace(' ', '_')}`;
-    const savedAssignments = localStorage.getItem(storageKey);
+    const assignmentsKey = `assignments_${courseCode.replace(' ', '_')}`;
+    const resourcesKey = `resources_${courseCode.replace(' ', '_')}`;
+    
+    const savedAssignments = localStorage.getItem(assignmentsKey);
     if (savedAssignments) {
       try {
         const parsed = JSON.parse(savedAssignments);
@@ -46,6 +49,19 @@ const CourseTemplate = ({
         console.error('Error loading assignments:', error);
       }
     }
+
+    const savedResources = localStorage.getItem(resourcesKey);
+    if (savedResources) {
+      try {
+        const parsed = JSON.parse(savedResources);
+        setCourseResources(parsed.map((r: any) => ({
+          ...r,
+          createdAt: new Date(r.createdAt)
+        })));
+      } catch (error) {
+        console.error('Error loading course resources:', error);
+      }
+    }
   }, [courseCode]);
 
   // Save assignments to localStorage whenever they change
@@ -53,6 +69,13 @@ const CourseTemplate = ({
     setAssignments(newAssignments);
     const storageKey = `assignments_${courseCode.replace(' ', '_')}`;
     localStorage.setItem(storageKey, JSON.stringify(newAssignments));
+  };
+
+  // Save course resources to localStorage whenever they change
+  const handleResourcesChange = (newResources: Assignment[]) => {
+    setCourseResources(newResources);
+    const storageKey = `resources_${courseCode.replace(' ', '_')}`;
+    localStorage.setItem(storageKey, JSON.stringify(newResources));
   };
 
   return (
@@ -111,13 +134,15 @@ const CourseTemplate = ({
 
         {/* Course Resources */}
         <div className="bg-white rounded-lg shadow-sm border p-8">
-          <h3 className="text-xl font-semibold text-gray-900 mb-4">Course Resources</h3>
-          <div className="text-center py-8">
-            <BookOpen className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-            <p className="text-gray-600">
-              Additional course resources and materials will be added here.
-            </p>
-          </div>
+          <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
+            <BookOpen className="h-5 w-5 mr-2 text-blue-600" />
+            Course Resources
+          </h3>
+          
+          <AssignmentManager 
+            assignments={courseResources}
+            onAssignmentsChange={handleResourcesChange}
+          />
         </div>
       </div>
     </Layout>
