@@ -28,7 +28,7 @@ const Index = () => {
             <div className="mb-8">
               <div className="w-32 h-32 bg-white rounded-full mx-auto mb-6 overflow-hidden">
                 <img 
-                  src="/lovable-uploads/2f83aaf7-4dcd-4bb1-8c92-a40a1c70e174.png" 
+                  src="/csumb-ilp/lovable-uploads/2f83aaf7-4dcd-4bb1-8c92-a40a1c70e174.png" 
                   alt="Bug Plowman"
                   className="w-full h-full object-cover"
                 />
@@ -46,7 +46,7 @@ const Index = () => {
       <div className="bg-white py-8">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <img 
-            src="/lovable-uploads/d0c46ee8-8723-4c37-9484-4d52fb32b0ef.png" 
+            src="/csumb-ilp/lovable-uploads/d0c46ee8-8723-4c37-9484-4d52fb32b0ef.png" 
             alt="CSUMB Logo"
             className="h-16 mx-auto"
           />
