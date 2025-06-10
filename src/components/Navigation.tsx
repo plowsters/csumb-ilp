@@ -9,15 +9,15 @@ const Navigation = () => {
   const courses = [
     { code: 'CST 300', name: 'Major ProSeminar', path: '/cst300' },
     { code: 'CST 338', name: 'Software Design', path: '/cst338' },
-    { code: 'CST 311', name: 'Computer Networks', path: '/cst311' },
+    { code: 'CST 311', name: 'Intro to Computer Networks', path: '/cst311' },
     { code: 'CST 334', name: 'Operating Systems', path: '/cst334' },
     { code: 'CST 336', name: 'Internet Programming', path: '/cst336' },
-    { code: 'CST 363', name: 'Database Systems', path: '/cst363' },
-    { code: 'CST 370', name: 'Algorithms', path: '/cst370' },
+    { code: 'CST 363', name: 'Intro to Database Systems', path: '/cst363' },
+    { code: 'CST 370', name: 'Design and Analysis of Algorithms', path: '/cst370' },
     { code: 'CST 438', name: 'Software Engineering', path: '/cst438' },
-    { code: 'CST 462S', name: 'Digital World Issues', path: '/cst462s' },
-    { code: 'CST 489', name: 'Capstone Planning', path: '/cst489' },
-    { code: 'CST 499', name: 'Capstone Project', path: '/cst499' },
+    { code: 'CST 462S', name: 'Race, Gender, Class in the Digital World', path: '/cst462s' },
+    { code: 'CST 489', name: 'Capstone Project Planning', path: '/cst489' },
+    { code: 'CST 499', name: 'Computer Science Capstone', path: '/cst499' },
   ];
 
   return (
