@@ -45,7 +45,7 @@ const Index = () => {
       {/* CSUMB Logo Section */}
       <div className="bg-background py-8">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="inline-block p-5 rounded-full dark:bg-white">
+          <div className="inline-block p-4 rounded-full dark:bg-white">
             <img 
               src="/csumb-ilp/lovable-uploads/d0c46ee8-8723-4c37-9484-4d52fb32b0ef.png" 
               alt="CSUMB Logo"

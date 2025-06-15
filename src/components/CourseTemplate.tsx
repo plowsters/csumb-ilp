@@ -30,7 +30,7 @@ const CourseTemplate = ({
     <Layout>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Course Header */}
-        <div className="bg-accent rounded-lg p-8 mb-8">
+        <div className="bg-card rounded-lg shadow-sm border p-8 mb-8">
           <div className="flex items-start justify-between mb-6">
             <div>
               <h1 className="text-3xl font-bold text-card-foreground mb-2">{courseCode}</h1>
@@ -74,7 +74,7 @@ const CourseTemplate = ({
               </h3>
               <div className="space-y-4">
                 {assignments.map((assignment, index) => (
-                  <div key={index} className="bg-background border rounded-lg p-4">
+                  <div key={index} className="bg-accent rounded-lg p-4">
                     <h4 className="font-medium text-accent-foreground mb-2">{assignment.title}</h4>
                     <p className="text-muted-foreground text-sm">{assignment.description}</p>
                   </div>
@@ -85,7 +85,7 @@ const CourseTemplate = ({
         </div>
 
         {/* Projects & Assignments Section */}
-        <div className="bg-accent rounded-lg p-8 mb-8">
+        <div className="bg-card rounded-lg shadow-sm border p-8 mb-8">
           <h3 className="text-xl font-semibold text-card-foreground mb-6 flex items-center">
             <FileText className="h-5 w-5 mr-2 text-primary" />
             Projects & Assignments
@@ -98,7 +98,7 @@ const CourseTemplate = ({
         </div>
 
         {/* Course Resources */}
-        <div className="bg-accent rounded-lg p-8">
+        <div className="bg-card rounded-lg shadow-sm border p-8">
           <h3 className="text-xl font-semibold text-card-foreground mb-6 flex items-center">
             <BookOpen className="h-5 w-5 mr-2 text-primary" />
             Course Resources
