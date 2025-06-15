@@ -11,10 +11,6 @@ try {
     throw new Error('FATAL: NEON_TECH_DB_URL environment variable is not set.');
   }
 
-  if (!connectionString.startsWith('postgresql://')) {
-    throw new Error('FATAL: NEON_TECH_DB_URL must start with "postgresql://". Please check your environment variable.');
-  }
-
   console.log('DB Initializing: Creating postgres client...');
   
   pgInstance = postgres(connectionString, {
@@ -32,3 +28,4 @@ try {
 
 export const pg = pgInstance;
 export const pgError = pgInitError;
+
