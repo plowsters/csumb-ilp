@@ -1,7 +1,6 @@
-
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { lucia } from "../../lib/lucia.js";
-import { pg } from "../../lib/pg.js";
+import { lucia, authError } from "../../lib/lucia.js";
+import { pg, pgError } from "../../lib/pg.js";
 
 const ALLOWED_ORIGINS = [
   "https://plowsters.github.io",
@@ -22,20 +21,33 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   setCorsHeaders(res, origin);
 
   if (req.method === "OPTIONS") {
-    console.log("Preflight request received from origin:", origin);
+    console.log("Preflight request received for assignments, responding with 200 OK.");
     return res.status(200).end();
+  }
+
+  if (pgError) {
+    console.error("DB Initialization Error:", pgError);
+    return res.status(500).json({ error: "Database connection failed", details: pgError.message });
+  }
+
+  if (!pg) {
+    console.error("Critical Error: PG is null without a corresponding pgError.");
+    return res.status(500).json({ error: "Server misconfiguration" });
   }
 
   const { courseCode } = req.query;
   
   try {
     if (req.method === "GET") {
-      // Public endpoint - get assignments for a course
       const rows = await pg`SELECT * FROM assignments WHERE course_code = ${courseCode} ORDER BY created_at DESC`;
       return res.status(200).json(rows);
     }
 
-    // For POST/PUT/DELETE, require authentication
+    if (authError || !lucia) {
+      console.error("Auth/DB Initialization Error on protected route:", authError);
+      return res.status(500).json({ error: "Server authentication misconfigured" });
+    }
+    
     const sessionId = lucia.readSessionCookie(req.headers.cookie ?? "");
     if (!sessionId) {
       return res.status(401).json({ error: "Authentication required" });

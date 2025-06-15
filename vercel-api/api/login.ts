@@ -1,7 +1,6 @@
-
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { lucia } from "../lib/lucia.js";
-import { pg } from "../lib/pg.js";
+import { lucia, authError } from "../lib/lucia.js";
+import { pg, pgError } from "../lib/pg.js";
 
 const ALLOWED_ORIGINS = [
   "https://plowsters.github.io",
@@ -10,7 +9,7 @@ const ALLOWED_ORIGINS = [
 
 function setCorsHeaders(res: VercelResponse, origin?: string) {
   const allowedOrigin = ALLOWED_ORIGINS.includes(origin || '') ? origin : ALLOWED_ORIGINS[0];
-  res.setHeader("Access-Control-Allow-Origin", allowedOrigin);
+  res.setHeader("Access-Control-Allow-Origin", allowedOrigin || ALLOWED_ORIGINS[0]);
   res.setHeader("Access-Control-Allow-Credentials", "true");
   res.setHeader("Access-Control-Allow-Methods", "GET,OPTIONS,PATCH,DELETE,POST,PUT");
   res.setHeader("Access-Control-Allow-Headers", "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization");
@@ -21,10 +20,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const origin = req.headers.origin;
   setCorsHeaders(res, origin);
 
-  // Handle preflight requests
   if (req.method === "OPTIONS") {
-    console.log("Preflight request received from origin:", origin);
+    console.log("Preflight request received for /api/login, responding with 200 OK.");
     return res.status(200).end();
+  }
+
+  if (authError) {
+    console.error("Auth/DB Initialization Error:", authError);
+    return res.status(500).json({ error: "Server initialization failed", details: authError.message });
+  }
+
+  if (!lucia || !pg) {
+    console.error("Critical Error: Lucia or PG is null without a corresponding authError.");
+    return res.status(500).json({ error: "Server misconfiguration" });
   }
 
   if (req.method !== "POST") {
@@ -32,13 +40,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    console.log("Login handler started");
-    console.log("Environment variables check:", {
-      hasAdminUsername: !!process.env.ADMIN_USERNAME,
-      hasAdminPassword: !!process.env.ADMIN_PASSWORD,
-      hasDbUrl: !!process.env.NEON_TECH_DB_URL
-    });
-    
     // Parse body manually to avoid undefined issues
     let body;
     if (req.body) {

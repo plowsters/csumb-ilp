@@ -1,6 +1,5 @@
-
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { lucia } from "../lib/lucia.js";
+import { lucia, authError } from "../lib/lucia.js";
 
 const ALLOWED_ORIGINS = [
   "https://plowsters.github.io",
@@ -21,8 +20,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   setCorsHeaders(res, origin);
 
   if (req.method === "OPTIONS") {
-    console.log("Preflight request received from origin:", origin);
+    console.log("Preflight request received for /api/me, responding with 200 OK.");
     return res.status(200).end();
+  }
+
+  if (authError) {
+    console.error("Auth/DB Initialization Error:", authError);
+    return res.status(500).json({ error: "Server initialization failed", details: authError.message });
+  }
+  
+  if (!lucia) {
+    console.error("Critical Error: Lucia is null without a corresponding authError.");
+    return res.status(500).json({ error: "Server misconfiguration" });
   }
 
   if (req.method !== "GET") {
