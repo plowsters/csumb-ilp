@@ -1,7 +1,7 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Layout from './Layout';
-import AssignmentManager, { Assignment } from './AssignmentManager';
+import AssignmentManager from './AssignmentManager';
 import { BookOpen, FileText, Calendar } from 'lucide-react';
 
 interface CourseTemplateProps {
@@ -9,16 +9,6 @@ interface CourseTemplateProps {
   courseName: string;
   units: number;
   description?: string;
-  projects?: Array<{
-    title: string;
-    description: string;
-    link?: string;
-  }>;
-  assignments?: Array<{
-    title: string;
-    description: string;
-    link?: string;
-  }>;
   isCompleted?: boolean;
 }
 
@@ -29,55 +19,6 @@ const CourseTemplate = ({
   description,
   isCompleted = false 
 }: CourseTemplateProps) => {
-  const [assignments, setAssignments] = useState<Assignment[]>([]);
-  const [courseResources, setCourseResources] = useState<Assignment[]>([]);
-
-  // Load assignments from localStorage on component mount
-  useEffect(() => {
-    const assignmentsKey = `assignments_${courseCode.replace(' ', '_')}`;
-    const resourcesKey = `resources_${courseCode.replace(' ', '_')}`;
-    
-    const savedAssignments = localStorage.getItem(assignmentsKey);
-    if (savedAssignments) {
-      try {
-        const parsed = JSON.parse(savedAssignments);
-        setAssignments(parsed.map((a: any) => ({
-          ...a,
-          createdAt: new Date(a.createdAt)
-        })));
-      } catch (error) {
-        console.error('Error loading assignments:', error);
-      }
-    }
-
-    const savedResources = localStorage.getItem(resourcesKey);
-    if (savedResources) {
-      try {
-        const parsed = JSON.parse(savedResources);
-        setCourseResources(parsed.map((r: any) => ({
-          ...r,
-          createdAt: new Date(r.createdAt)
-        })));
-      } catch (error) {
-        console.error('Error loading course resources:', error);
-      }
-    }
-  }, [courseCode]);
-
-  // Save assignments to localStorage whenever they change
-  const handleAssignmentsChange = (newAssignments: Assignment[]) => {
-    setAssignments(newAssignments);
-    const storageKey = `assignments_${courseCode.replace(' ', '_')}`;
-    localStorage.setItem(storageKey, JSON.stringify(newAssignments));
-  };
-
-  // Save course resources to localStorage whenever they change
-  const handleResourcesChange = (newResources: Assignment[]) => {
-    setCourseResources(newResources);
-    const storageKey = `resources_${courseCode.replace(' ', '_')}`;
-    localStorage.setItem(storageKey, JSON.stringify(newResources));
-  };
-
   return (
     <Layout>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -127,8 +68,8 @@ const CourseTemplate = ({
           </h3>
           
           <AssignmentManager 
-            assignments={assignments}
-            onAssignmentsChange={handleAssignmentsChange}
+            courseCode={courseCode.replace(' ', '_')}
+            type="assignment"
           />
         </div>
 
@@ -140,8 +81,8 @@ const CourseTemplate = ({
           </h3>
           
           <AssignmentManager 
-            assignments={courseResources}
-            onAssignmentsChange={handleResourcesChange}
+            courseCode={courseCode.replace(' ', '_')}
+            type="resource"
           />
         </div>
       </div>

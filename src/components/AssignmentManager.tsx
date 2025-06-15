@@ -1,37 +1,61 @@
-
-import React, { useState } from 'react';
-import { Plus, Edit, Trash2, FileText, Video, Code, Link, Download } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Plus, Edit, Trash2, FileText, Video, Code, Download } from 'lucide-react';
 import { Button } from './ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
+import { useAuth } from '../hooks/useAuth';
 
 export interface Assignment {
   id: string;
   title: string;
   description: string;
-  file?: File;
-  fileUrl?: string;
-  fileType?: string;
-  createdAt: Date;
+  file_url?: string;
+  file_type?: string;
+  course_code: string;
+  type: 'assignment' | 'resource';
+  created_at: Date;
 }
 
 interface AssignmentManagerProps {
-  assignments: Assignment[];
-  onAssignmentsChange: (assignments: Assignment[]) => void;
+  courseCode: string;
+  type: 'assignment' | 'resource';
 }
 
-const AssignmentManager = ({ assignments, onAssignmentsChange }: AssignmentManagerProps) => {
+const API_BASE_URL = process.env.NODE_ENV === 'production' 
+  ? 'https://your-vercel-project.vercel.app' 
+  : 'http://localhost:3000';
+
+const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
+  const { user } = useAuth();
+  const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingAssignment, setEditingAssignment] = useState<Assignment | null>(null);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      setSelectedFile(file);
+  // Load assignments from API
+  useEffect(() => {
+    fetchAssignments();
+  }, [courseCode, type]);
+
+  const fetchAssignments = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/assignments/${courseCode}`, {
+        credentials: 'include',
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        const filteredData = data.filter((item: Assignment) => item.type === type);
+        setAssignments(filteredData);
+      }
+    } catch (error) {
+      console.error('Error fetching assignments:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -42,30 +66,47 @@ const AssignmentManager = ({ assignments, onAssignmentsChange }: AssignmentManag
     return <FileText className="h-4 w-4" />;
   };
 
-  const handleSave = () => {
-    if (!title.trim()) return;
+  const handleSave = async () => {
+    if (!title.trim() || !user) return;
 
-    const newAssignment: Assignment = {
-      id: editingAssignment?.id || Date.now().toString(),
-      title: title.trim(),
-      description: description.trim(),
-      file: selectedFile || editingAssignment?.file,
-      fileUrl: selectedFile ? URL.createObjectURL(selectedFile) : editingAssignment?.fileUrl,
-      fileType: selectedFile?.type || editingAssignment?.fileType,
-      createdAt: editingAssignment?.createdAt || new Date(),
-    };
+    try {
+      const assignmentData = {
+        title: title.trim(),
+        description: description.trim(),
+        fileUrl: selectedFile ? URL.createObjectURL(selectedFile) : editingAssignment?.file_url,
+        fileType: selectedFile?.type || editingAssignment?.file_type,
+        type
+      };
 
-    if (editingAssignment) {
-      const updatedAssignments = assignments.map(a => 
-        a.id === editingAssignment.id ? newAssignment : a
-      );
-      onAssignmentsChange(updatedAssignments);
-    } else {
-      onAssignmentsChange([...assignments, newAssignment]);
+      if (editingAssignment) {
+        const response = await fetch(`${API_BASE_URL}/api/assignments/${courseCode}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ ...assignmentData, id: editingAssignment.id }),
+        });
+        
+        if (response.ok) {
+          fetchAssignments();
+        }
+      } else {
+        const response = await fetch(`${API_BASE_URL}/api/assignments/${courseCode}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(assignmentData),
+        });
+        
+        if (response.ok) {
+          fetchAssignments();
+        }
+      }
+
+      resetForm();
+      setIsDialogOpen(false);
+    } catch (error) {
+      console.error('Error saving assignment:', error);
     }
-
-    resetForm();
-    setIsDialogOpen(false);
   };
 
   const handleEdit = (assignment: Assignment) => {
@@ -76,9 +117,23 @@ const AssignmentManager = ({ assignments, onAssignmentsChange }: AssignmentManag
     setIsDialogOpen(true);
   };
 
-  const handleDelete = (id: string) => {
-    const updatedAssignments = assignments.filter(a => a.id !== id);
-    onAssignmentsChange(updatedAssignments);
+  const handleDelete = async (id: string) => {
+    if (!user) return;
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/assignments/${courseCode}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ id }),
+      });
+      
+      if (response.ok) {
+        fetchAssignments();
+      }
+    } catch (error) {
+      console.error('Error deleting assignment:', error);
+    }
   };
 
   const resetForm = () => {
@@ -100,6 +155,17 @@ const AssignmentManager = ({ assignments, onAssignmentsChange }: AssignmentManag
     setIsDialogOpen(true);
   };
 
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+    }
+  };
+
+  if (isLoading) {
+    return <div className="text-center py-4">Loading...</div>;
+  }
+
   return (
     <div className="space-y-6">
       {assignments.length > 0 && (
@@ -111,36 +177,38 @@ const AssignmentManager = ({ assignments, onAssignmentsChange }: AssignmentManag
                   <h4 className="font-medium text-gray-900 mb-2">{assignment.title}</h4>
                   <p className="text-gray-600 text-sm mb-3">{assignment.description}</p>
                   
-                  {assignment.file && (
+                  {assignment.file_url && (
                     <div className="flex items-center space-x-2 text-sm text-blue-600">
-                      {getFileIcon(assignment.fileType || '')}
+                      {getFileIcon(assignment.file_type || '')}
                       <button 
-                        onClick={() => assignment.fileUrl && window.open(assignment.fileUrl, '_blank')}
+                        onClick={() => window.open(assignment.file_url, '_blank')}
                         className="hover:underline"
                       >
-                        {assignment.file.name}
+                        View File
                       </button>
                       <Download className="h-3 w-3" />
                     </div>
                   )}
                 </div>
                 
-                <div className="flex space-x-2 ml-4">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleEdit(assignment)}
-                  >
-                    <Edit className="h-3 w-3" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleDelete(assignment.id)}
-                  >
-                    <Trash2 className="h-3 w-3" />
-                  </Button>
-                </div>
+                {user && (
+                  <div className="flex space-x-2 ml-4">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleEdit(assignment)}
+                    >
+                      <Edit className="h-3 w-3" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDelete(assignment.id)}
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </div>
+                )}
               </div>
             </div>
           ))}
@@ -151,79 +219,81 @@ const AssignmentManager = ({ assignments, onAssignmentsChange }: AssignmentManag
         <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center mb-4">
           <FileText className="h-12 w-12 text-gray-400 mx-auto mb-3" />
           <p className="text-gray-600 mb-4">
-            No assignments added yet. Click the + button to add your first assignment.
+            No {type}s added yet. {user ? "Click the + button to add your first " + type + "." : "Admin login required to add " + type + "s."}
           </p>
         </div>
       )}
 
-      <div className="flex justify-center">
-        <Dialog open={isDialogOpen} onOpenChange={handleDialogClose}>
-          <DialogTrigger asChild>
-            <Button
-              onClick={handleAddClick}
-              className="w-12 h-12 rounded-full bg-white hover:bg-gray-50 border border-gray-300 text-gray-600 shadow-sm"
-            >
-              <Plus className="h-5 w-5" />
-            </Button>
-          </DialogTrigger>
-          
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle>
-                {editingAssignment ? 'Edit Assignment' : 'Add New Assignment'}
-              </DialogTitle>
-            </DialogHeader>
+      {user && (
+        <div className="flex justify-center">
+          <Dialog open={isDialogOpen} onOpenChange={handleDialogClose}>
+            <DialogTrigger asChild>
+              <Button
+                onClick={handleAddClick}
+                className="w-12 h-12 rounded-full bg-white hover:bg-gray-50 border border-gray-300 text-gray-600 shadow-sm"
+              >
+                <Plus className="h-5 w-5" />
+              </Button>
+            </DialogTrigger>
             
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="title">Title</Label>
-                <Input
-                  id="title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Assignment title"
-                />
-              </div>
+            <DialogContent className="max-w-md">
+              <DialogHeader>
+                <DialogTitle>
+                  {editingAssignment ? `Edit ${type}` : `Add New ${type}`}
+                </DialogTitle>
+              </DialogHeader>
               
-              <div>
-                <Label htmlFor="description">Description</Label>
-                <textarea
-                  id="description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Assignment description"
-                  className="w-full h-20 px-3 py-2 border border-gray-300 rounded-md text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="title">Title</Label>
+                  <Input
+                    id="title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder={`${type} title`}
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="description">Description</Label>
+                  <textarea
+                    id="description"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder={`${type} description`}
+                    className="w-full h-20 px-3 py-2 border border-gray-300 rounded-md text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="file">Upload File</Label>
+                  <input
+                    id="file"
+                    type="file"
+                    onChange={handleFileSelect}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                    accept=".pdf,.docx,.doc,.mp4,.mov,.avi,.java,.c,.cpp,.py,.go,.rs,.sh,.js,.ts,.html,.css"
+                  />
+                  {selectedFile && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      Selected: {selectedFile.name}
+                    </p>
+                  )}
+                </div>
+                
+                <div className="flex justify-end space-x-2">
+                  <Button variant="outline" onClick={() => handleDialogClose(false)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={handleSave} disabled={!title.trim()}>
+                    {editingAssignment ? 'Update' : 'Add'}
+                  </Button>
+                </div>
               </div>
-              
-              <div>
-                <Label htmlFor="file">Upload File</Label>
-                <input
-                  id="file"
-                  type="file"
-                  onChange={handleFileSelect}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                  accept=".pdf,.docx,.doc,.mp4,.mov,.avi,.java,.c,.cpp,.py,.go,.rs,.sh,.js,.ts,.html,.css"
-                />
-                {selectedFile && (
-                  <p className="text-xs text-gray-500 mt-1">
-                    Selected: {selectedFile.name}
-                  </p>
-                )}
-              </div>
-              
-              <div className="flex justify-end space-x-2">
-                <Button variant="outline" onClick={() => handleDialogClose(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={handleSave} disabled={!title.trim()}>
-                  {editingAssignment ? 'Update' : 'Add'}
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-      </div>
+            </DialogContent>
+          </Dialog>
+        </div>
+      )}
     </div>
   );
 };

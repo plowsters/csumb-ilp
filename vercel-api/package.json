@@ -1,0 +1,13 @@
+
+{
+  "type": "module",
+  "dependencies": {
+    "lucia": "^3.0.0",
+    "@lucia-auth/adapter-postgresql": "^3.0.0",
+    "pg": "^8.11.3",
+    "@types/pg": "^8.10.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

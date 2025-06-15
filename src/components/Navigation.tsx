@@ -1,10 +1,15 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { useAuth } from '../hooks/useAuth';
+import AdminLogin from './AdminLogin';
+import { Button } from './ui/button';
+import { LogIn, LogOut, User } from 'lucide-react';
 
 const Navigation = () => {
   const location = useLocation();
+  const { user, logout } = useAuth();
+  const [showLogin, setShowLogin] = useState(false);
 
   const courses = [
     { code: 'CST 300', name: 'Major ProSeminar', path: '/cst300' },
@@ -71,9 +76,40 @@ const Navigation = () => {
                 </div>
               </div>
             </div>
+
+            {/* Admin Auth Section */}
+            {user ? (
+              <div className="flex items-center space-x-3">
+                <div className="flex items-center text-sm text-gray-600">
+                  <User className="h-4 w-4 mr-1" />
+                  {user.username}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={logout}
+                  className="flex items-center"
+                >
+                  <LogOut className="h-4 w-4 mr-1" />
+                  Logout
+                </Button>
+              </div>
+            ) : (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowLogin(true)}
+                className="flex items-center"
+              >
+                <LogIn className="h-4 w-4 mr-1" />
+                Admin
+              </Button>
+            )}
           </div>
         </div>
       </div>
+      
+      <AdminLogin isOpen={showLogin} onClose={() => setShowLogin(false)} />
     </nav>
   );
 };
