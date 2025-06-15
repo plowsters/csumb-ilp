@@ -4,11 +4,17 @@ import Layout from './Layout';
 import AssignmentManager from './AssignmentManager';
 import { BookOpen, FileText, Calendar } from 'lucide-react';
 
+interface Assignment {
+  title: string;
+  description: string;
+}
+
 interface CourseTemplateProps {
   courseCode: string;
   courseName: string;
   units: number;
   description?: string;
+  assignments?: Assignment[];
   isCompleted?: boolean;
 }
 
@@ -17,6 +23,7 @@ const CourseTemplate = ({
   courseName, 
   units, 
   description,
+  assignments = [],
   isCompleted = false 
 }: CourseTemplateProps) => {
   return (
@@ -55,6 +62,23 @@ const CourseTemplate = ({
                 <p className="text-yellow-800 text-sm">
                   Course description will be added when the course is completed.
                 </p>
+              </div>
+            </div>
+          )}
+
+          {assignments.length > 0 && (
+            <div className="border-t pt-6 mt-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                <FileText className="h-5 w-5 mr-2 text-blue-600" />
+                Course Assignments
+              </h3>
+              <div className="space-y-4">
+                {assignments.map((assignment, index) => (
+                  <div key={index} className="bg-gray-50 rounded-lg p-4">
+                    <h4 className="font-medium text-gray-900 mb-2">{assignment.title}</h4>
+                    <p className="text-gray-600 text-sm">{assignment.description}</p>
+                  </div>
+                ))}
               </div>
             </div>
           )}
