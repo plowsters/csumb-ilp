@@ -23,6 +23,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     console.log("Login handler started");
+    console.log("Environment variables check:", {
+      hasAdminUsername: !!process.env.ADMIN_USERNAME,
+      hasAdminPassword: !!process.env.ADMIN_PASSWORD,
+      hasDbUrl: !!process.env.NEON_TECH_DB_URL
+    });
     
     // Parse body manually to avoid undefined issues
     let body;
@@ -41,8 +46,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const { username, password } = body;
 
     console.log("Login attempt for username:", username);
-    console.log("Environment check - ADMIN_USERNAME exists:", !!process.env.ADMIN_USERNAME);
-    console.log("Environment check - ADMIN_PASSWORD exists:", !!process.env.ADMIN_PASSWORD);
 
     if (!username || !password) {
       return res.status(400).json({ error: "Username and password required" });
@@ -52,24 +55,42 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       username !== process.env.ADMIN_USERNAME ||
       password !== process.env.ADMIN_PASSWORD
     ) {
+      console.log("Invalid credentials provided");
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
-    // Use postgres library syntax - call pg directly as a function
-    const rows = await pg`SELECT id, username FROM users WHERE username = ${username}`;
-
-    if (!rows[0]) {
-      return res.status(401).json({ error: "User not found" });
-    }
-
-    const session = await lucia.createSession(rows[0].id, {});
-    const sessionCookie = lucia.createSessionCookie(session.id);
+    console.log("Credentials valid, querying database...");
     
-    res.setHeader("Set-Cookie", sessionCookie.serialize());
-    return res.status(200).json({ success: true, user: { username: rows[0].username } });
+    // Test database connection with detailed error handling
+    try {
+      const rows = await pg`SELECT id, username FROM users WHERE username = ${username}`;
+      console.log("Database query successful, found rows:", rows.length);
+      
+      if (!rows[0]) {
+        console.log("User not found in database");
+        return res.status(401).json({ error: "User not found" });
+      }
+
+      console.log("Creating session for user:", rows[0].username);
+      const session = await lucia.createSession(rows[0].id, {});
+      const sessionCookie = lucia.createSessionCookie(session.id);
+      
+      res.setHeader("Set-Cookie", sessionCookie.serialize());
+      console.log("Login successful");
+      return res.status(200).json({ success: true, user: { username: rows[0].username } });
+    } catch (dbError) {
+      console.error("Database error:", dbError);
+      throw dbError; // Re-throw to be caught by outer catch
+    }
   } catch (error) {
     console.error("Login error:", error);
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    return res.status(500).json({ error: "Internal server error", details: errorMessage });
+    const errorStack = error instanceof Error ? error.stack : "No stack trace";
+    console.error("Error stack:", errorStack);
+    return res.status(500).json({ 
+      error: "Internal server error", 
+      details: errorMessage,
+      type: error?.constructor?.name || "Unknown"
+    });
   }
 }
