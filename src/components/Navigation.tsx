@@ -1,19 +1,17 @@
 
-```tsx
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAuth } from '../hooks/useAuth';
 import AdminLogin from './AdminLogin';
 import { Button } from './ui/button';
-import { LogIn, LogOut, User, Menu, X, ChevronDown } from 'lucide-react';
+import { LogIn, LogOut, User, ChevronDown } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 
 const Navigation = () => {
   const location = useLocation();
   const { user, logout } = useAuth();
   const [showLogin, setShowLogin] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showMobileCourses, setShowMobileCourses] = useState(false);
 
   const courses = [
@@ -45,132 +43,120 @@ const Navigation = () => {
             <Link 
               to="/" 
               className="text-xl font-bold text-primary"
-              onClick={() => setIsMobileMenuOpen(false)}
             >
               ILP Portfolio
             </Link>
           </div>
           
-          <div className="flex items-center">
-            <div className="hidden md:flex items-center space-x-8">
-                <Link
-                to="/"
-                className={cn(
-                    "px-3 py-2 rounded-md text-sm font-medium transition-colors",
-                    location.pathname === "/" 
-                    ? "bg-accent text-accent-foreground" 
-                    : "text-muted-foreground hover:text-accent-foreground hover:bg-accent"
-                )}
-                >
-                Home
-                </Link>
-                
-                <div className="relative group">
-                <button className="px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:text-accent-foreground hover:bg-accent transition-colors flex items-center">
-                    Courses
-                </button>
-                
-                <div className="absolute left-0 mt-2 w-64 bg-card border rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                    <div className="py-2">
-                    {courses.map((course) => (
-                        <Link
-                        key={course.path}
-                        to={course.path}
-                        className={cn(
-                            "block px-4 py-2 text-sm transition-colors",
-                            location.pathname === course.path
-                            ? "bg-accent text-accent-foreground"
-                            : "text-card-foreground hover:bg-accent hover:text-accent-foreground"
-                        )}
-                        >
-                        <div className="font-medium">{course.code}</div>
-                        <div className="text-xs text-muted-foreground">{course.name}</div>
-                        </Link>
-                    ))}
-                    </div>
-                </div>
-                </div>
-            </div>
-
-            <div className="flex items-center ml-4 md:ml-8 space-x-3">
-              {/* Admin Auth Section */}
-              {user ? (
-              <div className="flex items-center space-x-3">
-                  <div className="flex items-center text-sm text-muted-foreground">
-                  <User className="h-4 w-4 mr-1" />
-                  {user.username}
-                  </div>
-                  <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={logout}
-                  className="flex items-center"
-                  >
-                  <LogOut className="h-4 w-4 mr-1" />
-                  Logout
-                  </Button>
-              </div>
-              ) : (
-              <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowLogin(true)}
-                  className="flex items-center"
-              >
-                  <LogIn className="h-4 w-4 mr-1" />
-                  Admin
-              </Button>
+          <div className="hidden md:flex items-center space-x-8">
+              <Link
+              to="/"
+              className={cn(
+                  "px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                  location.pathname === "/" 
+                  ? "bg-accent text-accent-foreground" 
+                  : "text-muted-foreground hover:text-accent-foreground hover:bg-accent"
               )}
-              <ThemeToggle />
-              <div className="md:hidden">
-                <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-                  {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-                  <span className="sr-only">Open main menu</span>
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      {isMobileMenuOpen && (
-        <div className="md:hidden border-t border-border">
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-            <Link to="/" className={mobileLinkClasses("/")} onClick={() => setIsMobileMenuOpen(false)}>
-              Home
-            </Link>
-            <div>
-              <button 
-                onClick={() => setShowMobileCourses(!showMobileCourses)}
-                className={cn(mobileLinkClasses("#"), "w-full flex justify-between items-center")}
               >
-                <span>Courses</span>
-                <ChevronDown className={cn("h-5 w-5 transition-transform", showMobileCourses && "rotate-180")} />
+              Home
+              </Link>
+              
+              <div className="relative group">
+              <button className="px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:text-accent-foreground hover:bg-accent transition-colors flex items-center">
+                  Courses
               </button>
-              {showMobileCourses && (
-                <div className="pt-2 pl-4 space-y-1">
+              
+              <div className="absolute left-0 mt-2 w-64 bg-card border rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                  <div className="py-2">
                   {courses.map((course) => (
-                    <Link
+                      <Link
                       key={course.path}
                       to={course.path}
-                      onClick={() => setIsMobileMenuOpen(false)}
                       className={cn(
-                          "block px-4 py-2 text-sm transition-colors rounded-md",
+                          "block px-4 py-2 text-sm transition-colors",
                           location.pathname === course.path
                           ? "bg-accent text-accent-foreground"
                           : "text-card-foreground hover:bg-accent hover:text-accent-foreground"
                       )}
-                    >
+                      >
                       <div className="font-medium">{course.code}</div>
                       <div className="text-xs text-muted-foreground">{course.name}</div>
-                    </Link>
+                      </Link>
                   ))}
+                  </div>
+              </div>
+              </div>
+          </div>
+
+          <div className="flex items-center ml-4 md:ml-8 space-x-3">
+            {/* Admin Auth Section */}
+            {user ? (
+            <div className="flex items-center space-x-3">
+                <div className="flex items-center text-sm text-muted-foreground">
+                <User className="h-4 w-4 mr-1" />
+                {user.username}
                 </div>
-              )}
+                <Button
+                variant="outline"
+                size="sm"
+                onClick={logout}
+                className="flex items-center"
+                >
+                <LogOut className="h-4 w-4 mr-1" />
+                Logout
+                </Button>
             </div>
+            ) : (
+            <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowLogin(true)}
+                className="flex items-center"
+            >
+                <LogIn className="h-4 w-4 mr-1" />
+                Admin
+            </Button>
+            )}
+            <ThemeToggle />
           </div>
         </div>
-      )}
+      </div>
+      
+      <div className="md:hidden border-t border-border">
+        <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+          <Link to="/" className={mobileLinkClasses("/")}>
+            Home
+          </Link>
+          <div>
+            <button 
+              onClick={() => setShowMobileCourses(!showMobileCourses)}
+              className={cn(mobileLinkClasses("#"), "w-full flex justify-between items-center")}
+            >
+              <span>Courses</span>
+              <ChevronDown className={cn("h-5 w-5 transition-transform", showMobileCourses && "rotate-180")} />
+            </button>
+            {showMobileCourses && (
+              <div className="pt-2 pl-4 space-y-1">
+                {courses.map((course) => (
+                  <Link
+                    key={course.path}
+                    to={course.path}
+                    className={cn(
+                        "block px-4 py-2 text-sm transition-colors rounded-md",
+                        location.pathname === course.path
+                        ? "bg-accent text-accent-foreground"
+                        : "text-card-foreground hover:bg-accent hover:text-accent-foreground"
+                    )}
+                  >
+                    <div className="font-medium">{course.code}</div>
+                    <div className="text-xs text-muted-foreground">{course.name}</div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
       
       <AdminLogin isOpen={showLogin} onClose={() => setShowLogin(false)} />
     </nav>
@@ -178,4 +164,3 @@ const Navigation = () => {
 };
 
 export default Navigation;
-```
