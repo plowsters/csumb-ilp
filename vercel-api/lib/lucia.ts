@@ -14,10 +14,10 @@ if (pg) {
           session: "sessions"
         }), {
           sessionCookie: {
+            httpOnly: true,
             attributes: {
               secure: true,
               sameSite: "none",
-              httpOnly: true
             }
           },
           getUserAttributes: (attributes) => {
@@ -40,11 +40,13 @@ if (pg) {
 export const lucia = luciaInstance;
 export const authError = authInitError;
 
+interface DatabaseUserAttributes {
+	username: string;
+}
+
 declare module "lucia" {
   interface Register {
-    Lucia: typeof luciaInstance; // Will be Lucia | null
-    DatabaseUserAttributes: {
-      username: string;
-    };
+    Lucia: typeof lucia;
+    DatabaseUserAttributes: DatabaseUserAttributes;
   }
 }
