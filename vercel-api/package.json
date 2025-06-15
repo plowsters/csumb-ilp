@@ -2,6 +2,7 @@
 {
   "name": "vercel-api",
   "version": "1.0.0",
+  "type": "module",
   "dependencies": {
     "@lucia-auth/adapter-postgresql": "^3.0.0",
     "lucia": "^3.0.0",
