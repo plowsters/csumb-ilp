@@ -1,4 +1,5 @@
 
+```tsx
 import React from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -32,51 +33,76 @@ const SortableAssignmentItem = ({ assignment, handleEdit, handleDelete, getFileI
     position: 'relative' as 'relative',
   };
 
-  const containerClasses = `border p-4 pl-4 bg-secondary text-card-foreground rounded-lg flex items-start border-l-4 border-l-border dark:border-l-white ${isDragging ? 'shadow-lg' : ''}`;
+  const containerClasses = `border p-4 bg-secondary text-card-foreground rounded-lg flex flex-col sm:flex-row sm:items-start border-l-4 border-l-border ${isDragging ? 'shadow-lg' : ''}`;
 
   return (
     <div ref={setNodeRef} style={style} {...attributes} className={containerClasses}>
-      {user && (
-        <button {...listeners} className="p-2 cursor-grab touch-none mr-2 text-muted-foreground hover:text-accent-foreground">
-          <GripVertical className="h-5 w-5" />
-        </button>
-      )}
-      <div className="flex-1">
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <h4 className="font-medium mb-2">{assignment.title}</h4>
-            <p className="text-muted-foreground text-sm mb-3">{assignment.description}</p>
-            {assignment.file_url && (
-              <div className="flex items-center space-x-2 text-sm text-primary hover:text-primary/90">
-                {getFileIcon(assignment.file_type || '')}
-                <button
-                  onClick={() => window.open(assignment.file_url, '_blank')}
-                  className="hover:underline"
+      <div className="flex w-full sm:w-auto items-start justify-between sm:justify-start shrink-0">
+        {user && (
+          <button {...listeners} className="p-2 cursor-grab touch-none -ml-2 sm:ml-0 sm:mr-2 text-muted-foreground hover:text-accent-foreground">
+            <GripVertical className="h-5 w-5" />
+          </button>
+        )}
+        <div className="sm:hidden">
+            {user && (
+                <div className="flex space-x-2">
+                <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleEdit(assignment)}
                 >
-                  View File
-                </button>
-                <Download className="h-3 w-3" />
-              </div>
+                    <Edit className="h-3 w-3" />
+                </Button>
+                <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleDelete(assignment.id)}
+                >
+                    <Trash2 className="h-3 w-3" />
+                </Button>
+                </div>
             )}
-          </div>
-          {user && (
-            <div className="flex space-x-2 ml-4">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleEdit(assignment)}
-              >
-                <Edit className="h-3 w-3" />
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleDelete(assignment.id)}
-              >
-                <Trash2 className="h-3 w-3" />
-              </Button>
+        </div>
+      </div>
+      
+      <div className="flex-1 w-full mt-2 sm:mt-0">
+        <div className="flex items-start justify-between">
+            <div className="flex-1 pr-4">
+                <h4 className="font-medium mb-2">{assignment.title}</h4>
+                <p className="text-muted-foreground text-sm mb-3">{assignment.description}</p>
+                {assignment.file_url && (
+                <div className="flex items-center space-x-2 text-sm text-primary hover:text-primary/90">
+                    {getFileIcon(assignment.file_type || '')}
+                    <button
+                    onClick={() => window.open(assignment.file_url, '_blank')}
+                    className="hover:underline"
+                    >
+                    View File
+                    </button>
+                    <Download className="h-3 w-3" />
+                </div>
+                )}
             </div>
-          )}
+            <div className="hidden sm:flex">
+                {user && (
+                    <div className="flex space-x-2">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEdit(assignment)}
+                    >
+                        <Edit className="h-3 w-3" />
+                    </Button>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDelete(assignment.id)}
+                    >
+                        <Trash2 className="h-3 w-3" />
+                    </Button>
+                    </div>
+                )}
+            </div>
         </div>
       </div>
     </div>
@@ -84,3 +110,4 @@ const SortableAssignmentItem = ({ assignment, handleEdit, handleDelete, getFileI
 };
 
 export default SortableAssignmentItem;
+```
