@@ -48,7 +48,7 @@ const Index = () => {
           <img 
             src="/csumb-ilp/lovable-uploads/d0c46ee8-8723-4c37-9484-4d52fb32b0ef.png" 
             alt="CSUMB Logo"
-            className="h-16 mx-auto dark:invert"
+            className="h-16 mx-auto"
           />
         </div>
       </div>
