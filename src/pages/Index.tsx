@@ -43,12 +43,12 @@ const Index = () => {
       </div>
 
       {/* CSUMB Logo Section */}
-      <div className="bg-white py-8">
+      <div className="bg-background py-8">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <img 
             src="/csumb-ilp/lovable-uploads/d0c46ee8-8723-4c37-9484-4d52fb32b0ef.png" 
             alt="CSUMB Logo"
-            className="h-16 mx-auto"
+            className="h-16 mx-auto dark:invert"
           />
         </div>
       </div>
@@ -56,12 +56,12 @@ const Index = () => {
       {/* Bio Section */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid md:grid-cols-2 gap-8">
-          <div className="bg-white rounded-lg shadow-sm border p-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center">
-              <User className="h-6 w-6 mr-3 text-blue-600" />
+          <div className="bg-card rounded-lg shadow-sm border p-6">
+            <h2 className="text-2xl font-bold text-card-foreground mb-4 flex items-center">
+              <User className="h-6 w-6 mr-3 text-primary" />
               About Me
             </h2>
-            <p className="text-gray-600 leading-relaxed">
+            <p className="text-muted-foreground leading-relaxed">
               Welcome to my Individual Learning Plan (ILP) Portfolio. I am a Computer Science student in the 
               CS Online Summer '25 Cohort at California State University, Monterey Bay, passionate about 
               technology and innovation. This portfolio showcases my academic journey and the projects I've 
@@ -69,12 +69,12 @@ const Index = () => {
             </p>
           </div>
 
-          <div className="bg-white rounded-lg shadow-sm border p-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center">
-              <Target className="h-6 w-6 mr-3 text-blue-600" />
+          <div className="bg-card rounded-lg shadow-sm border p-6">
+            <h2 className="text-2xl font-bold text-card-foreground mb-4 flex items-center">
+              <Target className="h-6 w-6 mr-3 text-primary" />
               My Goals
             </h2>
-            <ul className="text-gray-600 space-y-2">
+            <ul className="text-muted-foreground space-y-2">
               <li>• Develop strong software engineering and reverse engineering skills</li>
               <li>• Master computer science, distributed systems, large networks, and malware analysis fundamentals</li>
               <li>• Build a portfolio of meaningful projects</li>
@@ -85,41 +85,41 @@ const Index = () => {
       </div>
 
       {/* Program Learning Outcomes */}
-      <div className="bg-white py-12">
+      <div className="bg-background py-12">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4 flex items-center justify-center">
-              <GraduationCap className="h-8 w-8 mr-3 text-blue-600" />
+            <h2 className="text-3xl font-bold text-foreground mb-4 flex items-center justify-center">
+              <GraduationCap className="h-8 w-8 mr-3 text-primary" />
               Program Learning Outcomes
             </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
+            <p className="text-muted-foreground max-w-2xl mx-auto">
               The Computer Science program at CSUMB prepares students with comprehensive technical skills 
               and knowledge for success in the technology industry.
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">
-            <div className="bg-gray-50 rounded-lg p-6">
-              <h3 className="font-semibold text-gray-900 mb-3">Technical Proficiency</h3>
-              <p className="text-gray-600 text-sm">
+            <div className="bg-accent rounded-lg p-6">
+              <h3 className="font-semibold text-accent-foreground mb-3">Technical Proficiency</h3>
+              <p className="text-muted-foreground text-sm">
                 Master programming languages, software development methodologies, and computer science principles.
               </p>
             </div>
-            <div className="bg-gray-50 rounded-lg p-6">
-              <h3 className="font-semibold text-gray-900 mb-3">Problem Solving</h3>
-              <p className="text-gray-600 text-sm">
+            <div className="bg-accent rounded-lg p-6">
+              <h3 className="font-semibold text-accent-foreground mb-3">Problem Solving</h3>
+              <p className="text-muted-foreground text-sm">
                 Develop analytical thinking and systematic approaches to complex computational problems.
               </p>
             </div>
-            <div className="bg-gray-50 rounded-lg p-6">
-              <h3 className="font-semibold text-gray-900 mb-3">Collaboration</h3>
-              <p className="text-gray-600 text-sm">
+            <div className="bg-accent rounded-lg p-6">
+              <h3 className="font-semibold text-accent-foreground mb-3">Collaboration</h3>
+              <p className="text-muted-foreground text-sm">
                 Work effectively in teams using modern development tools and project management practices.
               </p>
             </div>
-            <div className="bg-gray-50 rounded-lg p-6">
-              <h3 className="font-semibold text-gray-900 mb-3">Ethics & Society</h3>
-              <p className="text-gray-600 text-sm">
+            <div className="bg-accent rounded-lg p-6">
+              <h3 className="font-semibold text-accent-foreground mb-3">Ethics & Society</h3>
+              <p className="text-muted-foreground text-sm">
                 Understand the social impact of technology and develop ethical decision-making skills.
               </p>
             </div>
@@ -130,8 +130,8 @@ const Index = () => {
       {/* Courses Grid */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">Course Portfolio</h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
+          <h2 className="text-3xl font-bold text-foreground mb-4">Course Portfolio</h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto">
             Explore the courses I've completed as part of my Computer Science program. 
             Each course page contains project work, assignments, and reflections.
           </p>

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -5,6 +6,7 @@ import { useAuth } from '../hooks/useAuth';
 import AdminLogin from './AdminLogin';
 import { Button } from './ui/button';
 import { LogIn, LogOut, User } from 'lucide-react';
+import { ThemeToggle } from './ThemeToggle';
 
 const Navigation = () => {
   const location = useLocation();
@@ -26,85 +28,90 @@ const Navigation = () => {
   ];
 
   return (
-    <nav className="bg-white shadow-sm border-b">
+    <nav className="bg-card shadow-sm border-b">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link 
               to="/" 
-              className="text-xl font-bold text-blue-900 hover:text-blue-700 transition-colors"
+              className="text-xl font-bold text-primary"
             >
               ILP Portfolio
             </Link>
           </div>
           
-          <div className="hidden md:flex items-center space-x-8">
-            <Link
-              to="/"
-              className={cn(
-                "px-3 py-2 rounded-md text-sm font-medium transition-colors",
-                location.pathname === "/" 
-                  ? "bg-blue-100 text-blue-900" 
-                  : "text-gray-600 hover:text-blue-900 hover:bg-gray-50"
-              )}
-            >
-              Home
-            </Link>
-            
-            <div className="relative group">
-              <button className="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-blue-900 hover:bg-gray-50 transition-colors">
-                Courses
-              </button>
-              
-              <div className="absolute left-0 mt-2 w-64 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                <div className="py-2">
-                  {courses.map((course) => (
-                    <Link
-                      key={course.path}
-                      to={course.path}
-                      className={cn(
-                        "block px-4 py-2 text-sm transition-colors",
-                        location.pathname === course.path
-                          ? "bg-blue-100 text-blue-900"
-                          : "text-gray-700 hover:bg-gray-50 hover:text-blue-900"
-                      )}
-                    >
-                      <div className="font-medium">{course.code}</div>
-                      <div className="text-xs text-gray-500">{course.name}</div>
-                    </Link>
-                  ))}
+          <div className="flex items-center">
+            <div className="hidden md:flex items-center space-x-8">
+                <Link
+                to="/"
+                className={cn(
+                    "px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                    location.pathname === "/" 
+                    ? "bg-accent text-accent-foreground" 
+                    : "text-muted-foreground hover:text-accent-foreground hover:bg-accent"
+                )}
+                >
+                Home
+                </Link>
+                
+                <div className="relative group">
+                <button className="px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:text-accent-foreground hover:bg-accent transition-colors flex items-center">
+                    Courses
+                </button>
+                
+                <div className="absolute left-0 mt-2 w-64 bg-card border rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                    <div className="py-2">
+                    {courses.map((course) => (
+                        <Link
+                        key={course.path}
+                        to={course.path}
+                        className={cn(
+                            "block px-4 py-2 text-sm transition-colors",
+                            location.pathname === course.path
+                            ? "bg-accent text-accent-foreground"
+                            : "text-card-foreground hover:bg-accent hover:text-accent-foreground"
+                        )}
+                        >
+                        <div className="font-medium">{course.code}</div>
+                        <div className="text-xs text-muted-foreground">{course.name}</div>
+                        </Link>
+                    ))}
+                    </div>
                 </div>
-              </div>
+                </div>
             </div>
 
-            {/* Admin Auth Section */}
-            {user ? (
+            <div className="flex items-center ml-4 md:ml-8 space-x-3">
+              {/* Admin Auth Section */}
+              {user ? (
               <div className="flex items-center space-x-3">
-                <div className="flex items-center text-sm text-gray-600">
+                  <div className="flex items-center text-sm text-muted-foreground">
                   <User className="h-4 w-4 mr-1" />
                   {user.username}
-                </div>
-                <Button
+                  </div>
+                  <Button
                   variant="outline"
                   size="sm"
                   onClick={logout}
                   className="flex items-center"
-                >
+                  >
                   <LogOut className="h-4 w-4 mr-1" />
                   Logout
-                </Button>
+                  </Button>
               </div>
-            ) : (
+              ) : (
               <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowLogin(true)}
-                className="flex items-center"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowLogin(true)}
+                  className="flex items-center"
               >
-                <LogIn className="h-4 w-4 mr-1" />
-                Admin
+                  <LogIn className="h-4 w-4 mr-1" />
+                  Admin
               </Button>
-            )}
+              )}
+              <ThemeToggle />
+            </div>
           </div>
         </div>
       </div>
