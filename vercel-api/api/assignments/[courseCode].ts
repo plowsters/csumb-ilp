@@ -73,12 +73,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(400).json({ error: "Invalid payload, expected orderedIds array." });
       }
 
-      await pg.transaction(async (sql) => {
+      await pg`BEGIN`;
+      try {
         for (let i = 0; i < orderedIds.length; i++) {
           const id = orderedIds[i];
-          await sql`UPDATE assignments SET position = ${i} WHERE id = ${id} AND course_code = ${courseCode}`;
+          await pg`UPDATE assignments SET position = ${i} WHERE id = ${id} AND course_code = ${courseCode}`;
         }
-      });
+        await pg`COMMIT`;
+      } catch (transactionError) {
+        await pg`ROLLBACK`;
+        throw transactionError; // Re-throw to be caught by the outer catch block
+      }
 
       return res.status(200).json({ success: true, message: "Order updated." });
     }
