@@ -5,6 +5,7 @@
   "type": "module",
   "dependencies": {
     "@lucia-auth/adapter-postgresql": "^3.0.0",
+    "@vercel/blob": "^1.1.1",
     "lucia": "^3.0.0",
     "postgres": "^3.4.3"
   },
