@@ -22,7 +22,8 @@ CREATE TABLE assignments (
     file_url TEXT,
     file_type VARCHAR(100),
     type VARCHAR(20) DEFAULT 'assignment', -- 'assignment' or 'resource'
-    created_at TIMESTAMP DEFAULT NOW()
+    created_at TIMESTAMP DEFAULT NOW(),
+    position INTEGER
 );
 
 -- Insert admin user (replace 'bug' with your desired username)
