@@ -40,7 +40,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   
   try {
     if (req.method === "GET") {
-      const rows = await pg`SELECT * FROM assignments WHERE course_code = ${courseCode} ORDER BY created_at DESC`;
+      const rows = await pg`SELECT * FROM assignments WHERE course_code = ${courseCode} ORDER BY position ASC NULLS LAST, created_at DESC`;
       return res.status(200).json(rows);
     }
 
@@ -62,9 +62,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method === "POST") {
       const { title, description, fileUrl, fileType, type } = req.body;
       
-      const rows = await pg`INSERT INTO assignments (course_code, title, description, file_url, file_type, type, created_at) VALUES (${courseCode}, ${title}, ${description}, ${fileUrl}, ${fileType}, ${type || 'assignment'}, NOW()) RETURNING *`;
+      const rows = await pg`INSERT INTO assignments (course_code, title, description, file_url, file_type, type, created_at, position) VALUES (${courseCode}, ${title}, ${description}, ${fileUrl}, ${fileType}, ${type || 'assignment'}, NOW(), (SELECT COALESCE(MAX(position), -1) + 1 FROM assignments WHERE course_code = ${courseCode})) RETURNING *`;
       
       return res.status(201).json(rows[0]);
+    }
+
+    if (req.method === "PATCH") {
+      const { orderedIds } = req.body;
+      if (!Array.isArray(orderedIds)) {
+        return res.status(400).json({ error: "Invalid payload, expected orderedIds array." });
+      }
+
+      await pg.transaction(async (sql) => {
+        for (let i = 0; i < orderedIds.length; i++) {
+          const id = orderedIds[i];
+          await sql`UPDATE assignments SET position = ${i} WHERE id = ${id} AND course_code = ${courseCode}`;
+        }
+      });
+
+      return res.status(200).json({ success: true, message: "Order updated." });
     }
 
     if (req.method === "PUT") {

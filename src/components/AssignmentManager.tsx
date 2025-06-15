@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, FileText, Video, Code, Download } from 'lucide-react';
 import { Button } from './ui/button';
@@ -6,6 +5,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { useAuth } from '../hooks/useAuth';
+import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
+import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import SortableAssignmentItem from './SortableAssignmentItem';
 
 export interface Assignment {
   id: string;
@@ -16,6 +18,7 @@ export interface Assignment {
   course_code: string;
   type: 'assignment' | 'resource';
   created_at: Date;
+  position?: number;
 }
 
 interface AssignmentManagerProps {
@@ -35,6 +38,12 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
+  
+  const sensors = useSensors(useSensor(PointerSensor, {
+    activationConstraint: {
+      distance: 8,
+    },
+  }));
 
   // Load assignments from API
   useEffect(() => {
@@ -186,6 +195,37 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
     }
   };
 
+  const updateOrderInBackend = async (orderedIds: string[]) => {
+    try {
+      await fetch(`${API_BASE_URL}/api/assignments/${courseCode}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ orderedIds }),
+      });
+    } catch (error) {
+      console.error('Error updating assignment order:', error);
+      // Revert on error
+      fetchAssignments();
+    }
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      setAssignments((items) => {
+        const oldIndex = items.findIndex((item) => item.id === active.id);
+        const newIndex = items.findIndex((item) => item.id === over.id);
+        const newOrder = arrayMove(items, oldIndex, newIndex);
+
+        const orderedIds = newOrder.map(item => item.id);
+        updateOrderInBackend(orderedIds);
+
+        return newOrder;
+      });
+    }
+  };
+
   if (isLoading) {
     return <div className="text-center py-4">Loading...</div>;
   }
@@ -193,50 +233,28 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
   return (
     <div className="space-y-6">
       {assignments.length > 0 && (
-        <div className="space-y-4">
-          {assignments.map((assignment) => (
-            <div key={assignment.id} className="border-l-4 border-blue-500 pl-4 bg-white rounded-lg border p-4">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <h4 className="font-medium text-gray-900 mb-2">{assignment.title}</h4>
-                  <p className="text-gray-600 text-sm mb-3">{assignment.description}</p>
-                  
-                  {assignment.file_url && (
-                    <div className="flex items-center space-x-2 text-sm text-blue-600">
-                      {getFileIcon(assignment.file_type || '')}
-                      <button 
-                        onClick={() => window.open(assignment.file_url, '_blank')}
-                        className="hover:underline"
-                      >
-                        View File
-                      </button>
-                      <Download className="h-3 w-3" />
-                    </div>
-                  )}
-                </div>
-                
-                {user && (
-                  <div className="flex space-x-2 ml-4">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleEdit(assignment)}
-                    >
-                      <Edit className="h-3 w-3" />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleDelete(assignment.id)}
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
-                  </div>
-                )}
-              </div>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={assignments.map(a => a.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            <div className="space-y-4">
+              {assignments.map((assignment) => (
+                <SortableAssignmentItem
+                  key={assignment.id}
+                  assignment={assignment}
+                  handleEdit={handleEdit}
+                  handleDelete={handleDelete}
+                  getFileIcon={getFileIcon}
+                />
+              ))}
             </div>
-          ))}
-        </div>
+          </SortableContext>
+        </DndContext>
       )}
 
       {assignments.length === 0 && (
