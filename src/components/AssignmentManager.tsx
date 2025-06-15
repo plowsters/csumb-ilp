@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, FileText, Video, Code, Download } from 'lucide-react';
 import { Button } from './ui/button';
@@ -242,7 +243,7 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
         <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center mb-4">
           <FileText className="h-12 w-12 text-gray-400 mx-auto mb-3" />
           <p className="text-gray-600 mb-4">
-            No {type}s added yet. {user ? "Click the + button to add your first " + type + "." : "Admin login required to add " + type + "s."}
+            No {type}s added yet. {user ? "Click the + button to add your first " + type + "." : "Please be patient."}
           </p>
         </div>
       )}
