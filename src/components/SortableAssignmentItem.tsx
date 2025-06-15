@@ -32,22 +32,22 @@ const SortableAssignmentItem = ({ assignment, handleEdit, handleDelete, getFileI
     position: 'relative' as 'relative',
   };
 
-  const containerClasses = `border-l-4 border-blue-500 pl-4 bg-white rounded-lg border p-4 flex items-start ${isDragging ? 'shadow-lg' : ''}`;
+  const containerClasses = `border-l-4 border-primary pl-4 bg-card text-card-foreground rounded-lg border p-4 flex items-start ${isDragging ? 'shadow-lg' : ''}`;
 
   return (
     <div ref={setNodeRef} style={style} {...attributes} className={containerClasses}>
       {user && (
-        <button {...listeners} className="p-2 cursor-grab touch-none mr-2 text-gray-500 hover:text-gray-800">
+        <button {...listeners} className="p-2 cursor-grab touch-none mr-2 text-muted-foreground hover:text-accent-foreground">
           <GripVertical className="h-5 w-5" />
         </button>
       )}
       <div className="flex-1">
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <h4 className="font-medium text-gray-900 mb-2">{assignment.title}</h4>
-            <p className="text-gray-600 text-sm mb-3">{assignment.description}</p>
+            <h4 className="font-medium mb-2">{assignment.title}</h4>
+            <p className="text-muted-foreground text-sm mb-3">{assignment.description}</p>
             {assignment.file_url && (
-              <div className="flex items-center space-x-2 text-sm text-blue-600">
+              <div className="flex items-center space-x-2 text-sm text-primary hover:text-primary/90">
                 {getFileIcon(assignment.file_type || '')}
                 <button
                   onClick={() => window.open(assignment.file_url, '_blank')}

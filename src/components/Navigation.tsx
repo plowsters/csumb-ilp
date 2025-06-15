@@ -48,7 +48,7 @@ const Navigation = () => {
             </Link>
           </div>
           
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-4">
               <Link
               to="/"
               className={cn(
@@ -66,7 +66,7 @@ const Navigation = () => {
                   Courses
               </button>
               
-              <div className="absolute left-0 mt-2 w-64 bg-card border rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+              <div className="absolute right-0 mt-2 w-64 bg-card border rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                   <div className="py-2">
                   {courses.map((course) => (
                       <Link
@@ -86,9 +86,7 @@ const Navigation = () => {
                   </div>
               </div>
               </div>
-          </div>
-
-          <div className="flex items-center ml-4 md:ml-8 space-x-3">
+          
             {/* Admin Auth Section */}
             {user ? (
             <div className="flex items-center space-x-3">
