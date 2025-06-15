@@ -1,7 +1,10 @@
 
-import { Pool } from "pg";
+import postgres from 'postgres';
 
-export const pg = new Pool({
-  connectionString: process.env.NEON_TECH_DB_URL,
-  ssl: { rejectUnauthorized: false }
-});
+const connectionString = process.env.NEON_TECH_DB_URL || process.env.DATABASE_URL;
+
+if (!connectionString) {
+  throw new Error('DATABASE_URL or NEON_TECH_DB_URL environment variable is required');
+}
+
+export const pg = postgres(connectionString);
