@@ -154,6 +154,38 @@ const Navigation = () => {
             )}
           </div>
         </div>
+        <div className="border-t border-border px-4 py-3">
+          <div className="flex items-center justify-between">
+            {user ? (
+              <div className="flex items-center space-x-3">
+                  <div className="flex items-center text-sm text-muted-foreground">
+                  <User className="h-4 w-4 mr-1" />
+                  {user.username}
+                  </div>
+                  <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={logout}
+                  className="flex items-center"
+                  >
+                  <LogOut className="h-4 w-4 mr-1" />
+                  Logout
+                  </Button>
+              </div>
+              ) : (
+              <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowLogin(true)}
+                  className="flex items-center"
+              >
+                  <LogIn className="h-4 w-4 mr-1" />
+                  Admin
+              </Button>
+            )}
+            <ThemeToggle />
+          </div>
+        </div>
       </div>
       
       <AdminLogin isOpen={showLogin} onClose={() => setShowLogin(false)} />
