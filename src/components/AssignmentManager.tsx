@@ -22,9 +22,7 @@ interface AssignmentManagerProps {
   type: 'assignment' | 'resource';
 }
 
-const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://your-vercel-project.vercel.app' 
-  : 'http://localhost:3000';
+const API_BASE_URL = 'https://csumb-ilp.vercel.app';
 
 const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
   const { user } = useAuth();
