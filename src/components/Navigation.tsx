@@ -36,91 +36,93 @@ const Navigation = () => {
   );
 
   return (
-    <nav className="bg-card shadow-sm border-b sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          <div className="flex items-center">
-            <Link 
-              to="/" 
-              className="text-xl font-bold text-primary"
-            >
-              ILP Portfolio
-            </Link>
-          </div>
-          
-          <div className="hidden md:flex items-center space-x-4">
-              <Link
-              to="/"
-              className={cn(
-                  "px-3 py-2 rounded-md text-sm font-medium transition-colors",
-                  location.pathname === "/" 
-                  ? "bg-accent text-accent-foreground" 
-                  : "text-muted-foreground hover:text-accent-foreground hover:bg-accent"
-              )}
+    <>
+      <nav className="bg-card shadow-sm border-b sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between h-16">
+            <div className="flex items-center">
+              <Link 
+                to="/" 
+                className="text-xl font-bold text-primary"
               >
-              Home
+                ILP Portfolio
               </Link>
-              
-              <div className="relative group">
-              <button className="px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:text-accent-foreground hover:bg-accent transition-colors flex items-center">
-                  Courses
-              </button>
-              
-              <div className="absolute right-0 mt-2 w-64 bg-card border rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                  <div className="py-2">
-                  {courses.map((course) => (
-                      <Link
-                      key={course.path}
-                      to={course.path}
-                      className={cn(
-                          "block px-4 py-2 text-sm transition-colors",
-                          location.pathname === course.path
-                          ? "bg-accent text-accent-foreground"
-                          : "text-card-foreground hover:bg-accent hover:text-accent-foreground"
-                      )}
-                      >
-                      <div className="font-medium">{course.code}</div>
-                      <div className="text-xs text-muted-foreground">{course.name}</div>
-                      </Link>
-                  ))}
-                  </div>
-              </div>
-              </div>
-          
-            {/* Admin Auth Section */}
-            {user ? (
-            <div className="flex items-center space-x-3">
-                <div className="flex items-center text-sm text-muted-foreground">
-                <User className="h-4 w-4 mr-1" />
-                {user.username}
-                </div>
-                <Button
-                variant="outline"
-                size="sm"
-                onClick={logout}
-                className="flex items-center"
-                >
-                <LogOut className="h-4 w-4 mr-1" />
-                Logout
-                </Button>
             </div>
-            ) : (
-            <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowLogin(true)}
-                className="flex items-center"
-            >
-                <LogIn className="h-4 w-4 mr-1" />
-                Admin
-            </Button>
-            )}
-            <ThemeToggle />
+            
+            <div className="hidden md:flex items-center space-x-4">
+                <Link
+                to="/"
+                className={cn(
+                    "px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                    location.pathname === "/" 
+                    ? "bg-accent text-accent-foreground" 
+                    : "text-muted-foreground hover:text-accent-foreground hover:bg-accent"
+                )}
+                >
+                Home
+                </Link>
+                
+                <div className="relative group">
+                <button className="px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:text-accent-foreground hover:bg-accent transition-colors flex items-center">
+                    Courses
+                </button>
+                
+                <div className="absolute right-0 mt-2 w-64 bg-card border rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                    <div className="py-2">
+                    {courses.map((course) => (
+                        <Link
+                        key={course.path}
+                        to={course.path}
+                        className={cn(
+                            "block px-4 py-2 text-sm transition-colors",
+                            location.pathname === course.path
+                            ? "bg-accent text-accent-foreground"
+                            : "text-card-foreground hover:bg-accent hover:text-accent-foreground"
+                        )}
+                        >
+                        <div className="font-medium">{course.code}</div>
+                        <div className="text-xs text-muted-foreground">{course.name}</div>
+                        </Link>
+                    ))}
+                    </div>
+                </div>
+                </div>
+            
+              {/* Admin Auth Section */}
+              {user ? (
+              <div className="flex items-center space-x-3">
+                  <div className="flex items-center text-sm text-muted-foreground">
+                  <User className="h-4 w-4 mr-1" />
+                  {user.username}
+                  </div>
+                  <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={logout}
+                  className="flex items-center"
+                  >
+                  <LogOut className="h-4 w-4 mr-1" />
+                  Logout
+                  </Button>
+              </div>
+              ) : (
+              <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowLogin(true)}
+                  className="flex items-center"
+              >
+                  <LogIn className="h-4 w-4 mr-1" />
+                  Admin
+              </Button>
+              )}
+              <ThemeToggle />
+            </div>
           </div>
         </div>
-      </div>
+      </nav>
       
-      <div className="md:hidden border-t border-border">
+      <div className="md:hidden bg-card border-b border-border shadow-sm">
         <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
           <Link to="/" className={mobileLinkClasses("/")}>
             Home
@@ -189,8 +191,9 @@ const Navigation = () => {
       </div>
       
       <AdminLogin isOpen={showLogin} onClose={() => setShowLogin(false)} />
-    </nav>
+    </>
   );
 };
 
 export default Navigation;
+
