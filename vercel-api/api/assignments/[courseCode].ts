@@ -22,10 +22,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     if (req.method === "GET") {
       // Public endpoint - get assignments for a course
-      const { rows } = await pg.query(
-        "SELECT * FROM assignments WHERE course_code = $1 ORDER BY created_at DESC",
-        [courseCode]
-      );
+      const rows = await pg`SELECT * FROM assignments WHERE course_code = ${courseCode} ORDER BY created_at DESC`;
       return res.status(200).json(rows);
     }
 
@@ -43,10 +40,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method === "POST") {
       const { title, description, fileUrl, fileType, type } = req.body;
       
-      const { rows } = await pg.query(
-        "INSERT INTO assignments (course_code, title, description, file_url, file_type, type, created_at) VALUES ($1, $2, $3, $4, $5, $6, NOW()) RETURNING *",
-        [courseCode, title, description, fileUrl, fileType, type || 'assignment']
-      );
+      const rows = await pg`INSERT INTO assignments (course_code, title, description, file_url, file_type, type, created_at) VALUES (${courseCode}, ${title}, ${description}, ${fileUrl}, ${fileType}, ${type || 'assignment'}, NOW()) RETURNING *`;
       
       return res.status(201).json(rows[0]);
     }
@@ -54,10 +48,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method === "PUT") {
       const { id, title, description, fileUrl, fileType } = req.body;
       
-      const { rows } = await pg.query(
-        "UPDATE assignments SET title = $1, description = $2, file_url = $3, file_type = $4 WHERE id = $5 AND course_code = $6 RETURNING *",
-        [title, description, fileUrl, fileType, id, courseCode]
-      );
+      const rows = await pg`UPDATE assignments SET title = ${title}, description = ${description}, file_url = ${fileUrl}, file_type = ${fileType} WHERE id = ${id} AND course_code = ${courseCode} RETURNING *`;
       
       return res.status(200).json(rows[0]);
     }
@@ -65,10 +56,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method === "DELETE") {
       const { id } = req.body;
       
-      await pg.query(
-        "DELETE FROM assignments WHERE id = $1 AND course_code = $2",
-        [id, courseCode]
-      );
+      await pg`DELETE FROM assignments WHERE id = ${id} AND course_code = ${courseCode}`;
       
       return res.status(200).json({ success: true });
     }

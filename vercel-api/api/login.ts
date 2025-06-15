@@ -22,6 +22,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
+    console.log("Login handler started");
+    
     // Parse body manually to avoid undefined issues
     let body;
     if (req.body) {
@@ -53,10 +55,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
-    const { rows } = await pg.query(
-      "SELECT id, username FROM users WHERE username = $1", 
-      [username]
-    );
+    // Use postgres library syntax - call pg directly as a function
+    const rows = await pg`SELECT id, username FROM users WHERE username = ${username}`;
 
     if (!rows[0]) {
       return res.status(401).json({ error: "User not found" });
