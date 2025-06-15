@@ -9,8 +9,9 @@ export const lucia = new Lucia(new PostgresJsAdapter(pg, {
 }), {
   sessionCookie: {
     attributes: {
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "none"
+      secure: true,
+      sameSite: "none",
+      httpOnly: true
     }
   },
   getUserAttributes: (attributes) => {
