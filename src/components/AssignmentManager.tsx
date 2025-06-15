@@ -33,6 +33,7 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
   const [description, setDescription] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isUploading, setIsUploading] = useState(false);
 
   // Load assignments from API
   useEffect(() => {
@@ -66,14 +67,36 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
 
   const handleSave = async () => {
     if (!title.trim() || !user) return;
+    setIsUploading(true);
 
     try {
+      let fileUrl = editingAssignment?.file_url;
+      let fileType = editingAssignment?.file_type;
+
+      if (selectedFile) {
+        const response = await fetch(`${API_BASE_URL}/api/upload?filename=${encodeURIComponent(selectedFile.name)}`, {
+          method: 'POST',
+          body: selectedFile,
+          credentials: 'include',
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error('File upload failed:', errorData);
+          throw new Error(errorData.error || 'File upload failed');
+        }
+        
+        const newBlob = await response.json();
+        fileUrl = newBlob.url;
+        fileType = selectedFile.type;
+      }
+
       const assignmentData = {
         title: title.trim(),
         description: description.trim(),
-        fileUrl: selectedFile ? URL.createObjectURL(selectedFile) : editingAssignment?.file_url,
-        fileType: selectedFile?.type || editingAssignment?.file_type,
-        type
+        fileUrl,
+        fileType,
+        type,
       };
 
       if (editingAssignment) {
@@ -104,6 +127,8 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
       setIsDialogOpen(false);
     } catch (error) {
       console.error('Error saving assignment:', error);
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -277,14 +302,19 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
                       Selected: {selectedFile.name}
                     </p>
                   )}
+                  {editingAssignment?.file_url && !selectedFile && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      Current file: <a href={editingAssignment.file_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">View File</a>
+                    </p>
+                  )}
                 </div>
                 
                 <div className="flex justify-end space-x-2">
                   <Button variant="outline" onClick={() => handleDialogClose(false)}>
                     Cancel
                   </Button>
-                  <Button onClick={handleSave} disabled={!title.trim()}>
-                    {editingAssignment ? 'Update' : 'Add'}
+                  <Button onClick={handleSave} disabled={!title.trim() || isUploading}>
+                    {isUploading ? 'Uploading...' : (editingAssignment ? 'Update' : 'Add')}
                   </Button>
                 </div>
               </div>
