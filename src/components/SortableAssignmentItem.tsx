@@ -32,7 +32,7 @@ const SortableAssignmentItem = ({ assignment, handleEdit, handleDelete, getFileI
     position: 'relative' as 'relative',
   };
 
-  const containerClasses = `border-l-4 border-ring pl-4 bg-secondary text-card-foreground rounded-lg border p-4 flex items-start ${isDragging ? 'shadow-lg' : ''}`;
+  const containerClasses = `border p-4 pl-4 bg-secondary text-card-foreground rounded-lg flex items-start border-l-4 border-l-white dark:border-l-border ${isDragging ? 'shadow-lg' : ''}`;
 
   return (
     <div ref={setNodeRef} style={style} {...attributes} className={containerClasses}>
