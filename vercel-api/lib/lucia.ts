@@ -14,7 +14,6 @@ if (pg) {
           session: "sessions"
         }), {
           sessionCookie: {
-            httpOnly: true,
             attributes: {
               secure: true,
               sameSite: "none",
@@ -48,5 +47,6 @@ declare module "lucia" {
   interface Register {
     Lucia: typeof lucia;
     DatabaseUserAttributes: DatabaseUserAttributes;
+    DatabaseSessionAttributes: {};
   }
 }
