@@ -29,7 +29,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     } else {
       const rawBody = await new Promise((resolve, reject) => {
         let data = "";
-        req.on("data", chunk => (data += chunk));
+        req.on("data", (chunk: any) => (data += chunk));
         req.on("end", () => resolve(data));
         req.on("error", reject);
       });
@@ -69,6 +69,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).json({ success: true, user: { username: rows[0].username } });
   } catch (error) {
     console.error("Login error:", error);
-    return res.status(500).json({ error: "Internal server error", details: error.message });
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    return res.status(500).json({ error: "Internal server error", details: errorMessage });
   }
 }

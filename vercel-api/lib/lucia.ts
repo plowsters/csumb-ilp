@@ -1,9 +1,9 @@
 
 import { Lucia } from "lucia";
-import { PostgreSQLAdapter } from "@lucia-auth/adapter-postgresql";
+import { PostgresJsAdapter } from "@lucia-auth/adapter-postgresql";
 import { pg } from "./pg.js";
 
-export const lucia = new Lucia(new PostgreSQLAdapter(pg, {
+export const lucia = new Lucia(new PostgresJsAdapter(pg, {
   user: "users",
   session: "sessions"
 }), {

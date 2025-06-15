@@ -42,6 +42,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).json({ user: { id: user.id, username: user.username } });
   } catch (error) {
     console.error("Auth validation error:", error);
-    return res.status(500).json({ error: "Authentication failed", details: error.message });
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    return res.status(500).json({ error: "Authentication failed", details: errorMessage });
   }
 }
