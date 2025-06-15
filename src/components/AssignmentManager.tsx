@@ -8,6 +8,7 @@ import { useAuth } from '../hooks/useAuth';
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import SortableAssignmentItem from './SortableAssignmentItem';
+import { Textarea } from './ui/textarea';
 
 export interface Assignment {
   id: string;
@@ -258,9 +259,9 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
       )}
 
       {assignments.length === 0 && (
-        <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center mb-4">
-          <FileText className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-          <p className="text-gray-600 mb-4">
+        <div className="bg-accent border border-border rounded-lg p-6 text-center mb-4">
+          <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+          <p className="text-muted-foreground mb-4">
             No {type}s added yet. {user ? "Click the + button to add your first " + type + "." : "Please be patient."}
           </p>
         </div>
@@ -272,7 +273,7 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
             <DialogTrigger asChild>
               <Button
                 onClick={handleAddClick}
-                className="w-12 h-12 rounded-full bg-white hover:bg-gray-50 border border-gray-300 text-gray-600 shadow-sm"
+                className="w-12 h-12 rounded-full bg-card hover:bg-accent border text-muted-foreground shadow-sm"
               >
                 <Plus className="h-5 w-5" />
               </Button>
@@ -298,12 +299,12 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
                 
                 <div>
                   <Label htmlFor="description">Description</Label>
-                  <textarea
+                  <Textarea
                     id="description"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     placeholder={`${type} description`}
-                    className="w-full h-20 px-3 py-2 border border-gray-300 rounded-md text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="h-20 resize-none"
                   />
                 </div>
                 

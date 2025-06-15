@@ -1,17 +1,20 @@
 
+```tsx
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAuth } from '../hooks/useAuth';
 import AdminLogin from './AdminLogin';
 import { Button } from './ui/button';
-import { LogIn, LogOut, User } from 'lucide-react';
+import { LogIn, LogOut, User, Menu, X, ChevronDown } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 
 const Navigation = () => {
   const location = useLocation();
   const { user, logout } = useAuth();
   const [showLogin, setShowLogin] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showMobileCourses, setShowMobileCourses] = useState(false);
 
   const courses = [
     { code: 'CST 300', name: 'Major ProSeminar', path: '/cst300' },
@@ -27,14 +30,22 @@ const Navigation = () => {
     { code: 'CST 499', name: 'Computer Science Capstone', path: '/cst499' },
   ];
 
+  const mobileLinkClasses = (path: string) => cn(
+    "block px-3 py-2 rounded-md text-base font-medium transition-colors text-left",
+    location.pathname === path
+      ? "bg-accent text-accent-foreground"
+      : "text-muted-foreground hover:text-accent-foreground hover:bg-accent"
+  );
+
   return (
-    <nav className="bg-card shadow-sm border-b">
+    <nav className="bg-card shadow-sm border-b sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link 
               to="/" 
               className="text-xl font-bold text-primary"
+              onClick={() => setIsMobileMenuOpen(false)}
             >
               ILP Portfolio
             </Link>
@@ -111,10 +122,55 @@ const Navigation = () => {
               </Button>
               )}
               <ThemeToggle />
+              <div className="md:hidden">
+                <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+                  {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+                  <span className="sr-only">Open main menu</span>
+                </Button>
+              </div>
             </div>
           </div>
         </div>
       </div>
+      
+      {isMobileMenuOpen && (
+        <div className="md:hidden border-t border-border">
+          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+            <Link to="/" className={mobileLinkClasses("/")} onClick={() => setIsMobileMenuOpen(false)}>
+              Home
+            </Link>
+            <div>
+              <button 
+                onClick={() => setShowMobileCourses(!showMobileCourses)}
+                className={cn(mobileLinkClasses("#"), "w-full flex justify-between items-center")}
+              >
+                <span>Courses</span>
+                <ChevronDown className={cn("h-5 w-5 transition-transform", showMobileCourses && "rotate-180")} />
+              </button>
+              {showMobileCourses && (
+                <div className="pt-2 pl-4 space-y-1">
+                  {courses.map((course) => (
+                    <Link
+                      key={course.path}
+                      to={course.path}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className={cn(
+                          "block px-4 py-2 text-sm transition-colors rounded-md",
+                          location.pathname === course.path
+                          ? "bg-accent text-accent-foreground"
+                          : "text-card-foreground hover:bg-accent hover:text-accent-foreground"
+                      )}
+                    >
+                      <div className="font-medium">{course.code}</div>
+                      <div className="text-xs text-muted-foreground">{course.name}</div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
       
       <AdminLogin isOpen={showLogin} onClose={() => setShowLogin(false)} />
     </nav>
@@ -122,3 +178,4 @@ const Navigation = () => {
 };
 
 export default Navigation;
+```
