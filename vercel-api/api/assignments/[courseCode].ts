@@ -1,113 +1,117 @@
 
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { lucia, authError } from "../../lib/lucia.js";
-import { pg, pgError } from "../../lib/pg.js";
-
-const ALLOWED_ORIGINS = [
-  "https://plowsters.github.io",
-  "https://plowsters.github.io/csumb-ilp"
-];
-
-function setCorsHeaders(res: VercelResponse, origin?: string) {
-  const allowedOrigin = origin && ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
-  res.setHeader("Access-Control-Allow-Origin", allowedOrigin);
-  res.setHeader("Access-Control-Allow-Credentials", "true");
-  res.setHeader("Access-Control-Allow-Methods", "GET,OPTIONS,PATCH,DELETE,POST,PUT");
-  res.setHeader("Access-Control-Allow-Headers", "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization");
-  res.setHeader("Access-Control-Max-Age", "86400");
-}
+import { VercelRequest, VercelResponse } from '@vercel/node';
+import { lucia } from '../../lib/lucia';
+import { pool } from '../../lib/pg';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  const origin = req.headers.origin;
-  setCorsHeaders(res, origin);
+  // Set CORS headers
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Origin', 'https://plowsters.github.io');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+  res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization');
 
-  if (req.method === "OPTIONS") {
-    console.log("Preflight request received for assignments, responding with 200 OK.");
-    return res.status(200).end();
-  }
-
-  if (pgError) {
-    console.error("DB Initialization Error:", pgError);
-    return res.status(500).json({ error: "Database connection failed", details: pgError.message });
-  }
-
-  if (!pg) {
-    console.error("Critical Error: PG is null without a corresponding pgError.");
-    return res.status(500).json({ error: "Server misconfiguration" });
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
   }
 
   const { courseCode } = req.query;
-  
+
+  if (req.method === 'GET') {
+    try {
+      const result = await pool.query(
+        'SELECT id, course_code, title, description, file_url, file_type, type, created_at, position, screenshot_url FROM assignments WHERE course_code = $1 ORDER BY position ASC, created_at ASC',
+        [courseCode]
+      );
+      
+      res.status(200).json(result.rows);
+    } catch (error) {
+      console.error('Database error:', error);
+      res.status(500).json({ error: 'Database error' });
+    }
+    return;
+  }
+
+  // For POST, PUT, DELETE, PATCH - require authentication
+  const sessionId = req.cookies.auth_session;
+  if (!sessionId) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+
   try {
-    if (req.method === "GET") {
-      const rows = await pg`SELECT * FROM assignments WHERE course_code = ${courseCode} ORDER BY position ASC NULLS LAST, created_at DESC`;
-      return res.status(200).json(rows);
-    }
-
-    if (authError || !lucia) {
-      console.error("Auth/DB Initialization Error on protected route:", authError);
-      return res.status(500).json({ error: "Server authentication misconfigured" });
-    }
-    
-    const sessionId = lucia.readSessionCookie(req.headers.cookie ?? "");
-    if (!sessionId) {
-      return res.status(401).json({ error: "Authentication required" });
-    }
-
     const { session } = await lucia.validateSession(sessionId);
     if (!session) {
-      return res.status(401).json({ error: "Invalid session" });
+      return res.status(401).json({ error: 'Invalid session' });
     }
 
-    if (req.method === "POST") {
-      const { title, description, fileUrl, fileType, type } = req.body;
+    if (req.method === 'POST') {
+      const { title, description, fileUrl, fileType, screenshotUrl, type } = req.body;
       
-      const rows = await pg`INSERT INTO assignments (course_code, title, description, file_url, file_type, type, created_at, position) VALUES (${courseCode}, ${title}, ${description}, ${fileUrl}, ${fileType}, ${type || 'assignment'}, NOW(), (SELECT COALESCE(MAX(position), -1) + 1 FROM assignments WHERE course_code = ${courseCode})) RETURNING *`;
-      
-      return res.status(201).json(rows[0]);
-    }
-
-    if (req.method === "PATCH") {
-      const { orderedIds } = req.body;
-      if (!Array.isArray(orderedIds)) {
-        return res.status(400).json({ error: "Invalid payload, expected orderedIds array." });
+      if (!title) {
+        return res.status(400).json({ error: 'Title is required' });
       }
 
-      await pg`BEGIN`;
-      try {
-        for (let i = 0; i < orderedIds.length; i++) {
-          const id = orderedIds[i];
-          await pg`UPDATE assignments SET position = ${i} WHERE id = ${id} AND course_code = ${courseCode}`;
-        }
-        await pg`COMMIT`;
-      } catch (transactionError) {
-        await pg`ROLLBACK`;
-        throw transactionError; // Re-throw to be caught by the outer catch block
+      const result = await pool.query(
+        'INSERT INTO assignments (course_code, title, description, file_url, file_type, screenshot_url, type) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+        [courseCode, title, description, fileUrl, fileType, screenshotUrl, type || 'assignment']
+      );
+      
+      res.status(201).json(result.rows[0]);
+    } else if (req.method === 'PUT') {
+      const { id, title, description, fileUrl, fileType, screenshotUrl } = req.body;
+      
+      if (!id || !title) {
+        return res.status(400).json({ error: 'ID and title are required' });
       }
 
-      return res.status(200).json({ success: true, message: "Order updated." });
-    }
-
-    if (req.method === "PUT") {
-      const { id, title, description, fileUrl, fileType } = req.body;
+      const result = await pool.query(
+        'UPDATE assignments SET title = $1, description = $2, file_url = $3, file_type = $4, screenshot_url = $5 WHERE id = $6 AND course_code = $7 RETURNING *',
+        [title, description, fileUrl, fileType, screenshotUrl, id, courseCode]
+      );
       
-      const rows = await pg`UPDATE assignments SET title = ${title}, description = ${description}, file_url = ${fileUrl}, file_type = ${fileType} WHERE id = ${id} AND course_code = ${courseCode} RETURNING *`;
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: 'Assignment not found' });
+      }
       
-      return res.status(200).json(rows[0]);
-    }
-
-    if (req.method === "DELETE") {
+      res.status(200).json(result.rows[0]);
+    } else if (req.method === 'DELETE') {
       const { id } = req.body;
       
-      await pg`DELETE FROM assignments WHERE id = ${id} AND course_code = ${courseCode}`;
-      
-      return res.status(200).json({ success: true });
-    }
+      if (!id) {
+        return res.status(400).json({ error: 'ID is required' });
+      }
 
-    return res.status(405).json({ error: "Method not allowed" });
+      const result = await pool.query(
+        'DELETE FROM assignments WHERE id = $1 AND course_code = $2 RETURNING *',
+        [id, courseCode]
+      );
+      
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: 'Assignment not found' });
+      }
+      
+      res.status(200).json({ message: 'Assignment deleted successfully' });
+    } else if (req.method === 'PATCH') {
+      const { orderedIds } = req.body;
+      
+      if (!Array.isArray(orderedIds)) {
+        return res.status(400).json({ error: 'orderedIds must be an array' });
+      }
+
+      // Update positions based on array order
+      for (let i = 0; i < orderedIds.length; i++) {
+        await pool.query(
+          'UPDATE assignments SET position = $1 WHERE id = $2 AND course_code = $3',
+          [i, orderedIds[i], courseCode]
+        );
+      }
+      
+      res.status(200).json({ message: 'Order updated successfully' });
+    } else {
+      res.status(405).json({ error: 'Method not allowed' });
+    }
   } catch (error) {
-    console.error("Assignment API error:", error);
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    return res.status(500).json({ error: "Internal server error", details: errorMessage });
+    console.error('Database error:', error);
+    res.status(500).json({ error: 'Database error' });
   }
 }
