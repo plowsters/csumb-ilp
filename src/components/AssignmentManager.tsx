@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, FileText, Video, Code, Download } from 'lucide-react';
+import { Plus, Edit, Trash2, FileText, Video, Code, Download, Link, Image } from 'lucide-react';
 import { Button } from './ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
 import { Input } from './ui/input';
@@ -9,6 +9,7 @@ import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragEn
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import SortableAssignmentItem from './SortableAssignmentItem';
 import { Textarea } from './ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 
 export interface Assignment {
   id: string;
@@ -37,6 +38,8 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [linkUrl, setLinkUrl] = useState('');
+  const [resourceType, setResourceType] = useState<'file' | 'link'>('file');
   const [isLoading, setIsLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
   
@@ -70,21 +73,104 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
   };
 
   const getFileIcon = (fileType: string) => {
-    if (fileType.startsWith('video/')) return <Video className="h-4 w-4" />;
-    if (fileType.includes('pdf') || fileType.includes('document')) return <FileText className="h-4 w-4" />;
-    if (fileType.includes('text/') || fileType.includes('application/')) return <Code className="h-4 w-4" />;
+    if (fileType === 'link') return <Link className="h-4 w-4" />;
+    if (fileType?.startsWith('video/')) return <Video className="h-4 w-4" />;
+    if (fileType?.startsWith('image/')) return <Image className="h-4 w-4" />;
+    if (fileType?.includes('pdf') || fileType?.includes('document')) return <FileText className="h-4 w-4" />;
+    if (fileType?.includes('text/') || fileType?.includes('application/')) return <Code className="h-4 w-4" />;
     return <FileText className="h-4 w-4" />;
+  };
+
+  const getResourcePreview = (assignment: Assignment) => {
+    if (!assignment.file_url) return null;
+
+    // Website link
+    if (assignment.file_type === 'link') {
+      return (
+        <div className="mt-3 border rounded-lg overflow-hidden bg-muted">
+          <iframe
+            src={assignment.file_url}
+            className="w-full h-48"
+            title={assignment.title}
+            frameBorder="0"
+            sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+          />
+          <div className="p-2 bg-background border-t">
+            <a 
+              href={assignment.file_url} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-sm text-primary hover:underline truncate block"
+            >
+              {assignment.file_url}
+            </a>
+          </div>
+        </div>
+      );
+    }
+
+    // Image preview
+    if (assignment.file_type?.startsWith('image/')) {
+      return (
+        <div className="mt-3 border rounded-lg overflow-hidden">
+          <img 
+            src={assignment.file_url} 
+            alt={assignment.title}
+            className="w-full h-48 object-cover"
+            onError={(e) => {
+              e.currentTarget.style.display = 'none';
+            }}
+          />
+        </div>
+      );
+    }
+
+    // Video preview
+    if (assignment.file_type?.startsWith('video/')) {
+      return (
+        <div className="mt-3 border rounded-lg overflow-hidden">
+          <video 
+            src={assignment.file_url}
+            className="w-full h-48"
+            controls
+            preload="metadata"
+          />
+        </div>
+      );
+    }
+
+    // PDF preview (using iframe)
+    if (assignment.file_type?.includes('pdf')) {
+      return (
+        <div className="mt-3 border rounded-lg overflow-hidden bg-muted">
+          <iframe
+            src={assignment.file_url}
+            className="w-full h-48"
+            title={assignment.title}
+            frameBorder="0"
+          />
+        </div>
+      );
+    }
+
+    return null;
   };
 
   const handleSave = async () => {
     if (!title.trim() || !user) return;
+    if (resourceType === 'link' && !linkUrl.trim()) return;
+    if (resourceType === 'file' && !selectedFile && !editingAssignment?.file_url) return;
+
     setIsUploading(true);
 
     try {
       let fileUrl = editingAssignment?.file_url;
       let fileType = editingAssignment?.file_type;
 
-      if (selectedFile) {
+      if (resourceType === 'link') {
+        fileUrl = linkUrl.trim();
+        fileType = 'link';
+      } else if (selectedFile) {
         const response = await fetch(`${API_BASE_URL}/api/upload?filename=${encodeURIComponent(selectedFile.name)}`, {
           method: 'POST',
           body: selectedFile,
@@ -148,6 +234,8 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
     setTitle(assignment.title);
     setDescription(assignment.description);
     setSelectedFile(null);
+    setLinkUrl(assignment.file_type === 'link' ? assignment.file_url || '' : '');
+    setResourceType(assignment.file_type === 'link' ? 'link' : 'file');
     setIsDialogOpen(true);
   };
 
@@ -174,6 +262,8 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
     setTitle('');
     setDescription('');
     setSelectedFile(null);
+    setLinkUrl('');
+    setResourceType('file');
     setEditingAssignment(null);
   };
 
@@ -251,6 +341,7 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
                   handleEdit={handleEdit}
                   handleDelete={handleDelete}
                   getFileIcon={getFileIcon}
+                  getResourcePreview={getResourcePreview}
                 />
               ))}
             </div>
@@ -307,34 +398,63 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
                     className="h-20 resize-none"
                   />
                 </div>
-                
+
                 <div>
-                  <Label htmlFor="file">Upload File</Label>
-                  <input
-                    id="file"
-                    type="file"
-                    onChange={handleFileSelect}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                    accept=".pdf,.docx,.doc,.mp4,.mov,.avi,.java,.c,.cpp,.py,.go,.rs,.sh,.js,.ts,.html,.css"
-                  />
-                  {selectedFile && (
-                    <p className="text-xs text-gray-500 mt-1">
-                      Selected: {selectedFile.name}
-                    </p>
-                  )}
-                  {editingAssignment?.file_url && !selectedFile && (
-                    <p className="text-xs text-gray-500 mt-1">
-                      Current file: <a href={editingAssignment.file_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">View File</a>
-                    </p>
-                  )}
+                  <Label>Resource Type</Label>
+                  <Select value={resourceType} onValueChange={(value: 'file' | 'link') => setResourceType(value)}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="file">File Upload</SelectItem>
+                      <SelectItem value="link">Website Link</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
+
+                {resourceType === 'link' ? (
+                  <div>
+                    <Label htmlFor="link">Website URL</Label>
+                    <Input
+                      id="link"
+                      type="url"
+                      value={linkUrl}
+                      onChange={(e) => setLinkUrl(e.target.value)}
+                      placeholder="https://example.com"
+                    />
+                  </div>
+                ) : (
+                  <div>
+                    <Label htmlFor="file">Upload File</Label>
+                    <input
+                      id="file"
+                      type="file"
+                      onChange={handleFileSelect}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                      accept=".pdf,.docx,.doc,.mp4,.mov,.avi,.java,.c,.cpp,.py,.go,.rs,.sh,.js,.ts,.html,.css,.jpg,.jpeg,.png,.gif,.webp"
+                    />
+                    {selectedFile && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        Selected: {selectedFile.name}
+                      </p>
+                    )}
+                    {editingAssignment?.file_url && !selectedFile && editingAssignment.file_type !== 'link' && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        Current file: <a href={editingAssignment.file_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">View File</a>
+                      </p>
+                    )}
+                  </div>
+                )}
                 
                 <div className="flex justify-end space-x-2">
                   <Button variant="outline" onClick={() => handleDialogClose(false)}>
                     Cancel
                   </Button>
-                  <Button onClick={handleSave} disabled={!title.trim() || isUploading}>
-                    {isUploading ? 'Uploading...' : (editingAssignment ? 'Update' : 'Add')}
+                  <Button 
+                    onClick={handleSave} 
+                    disabled={!title.trim() || isUploading || (resourceType === 'link' && !linkUrl.trim()) || (resourceType === 'file' && !selectedFile && !editingAssignment?.file_url)}
+                  >
+                    {isUploading ? 'Saving...' : (editingAssignment ? 'Update' : 'Add')}
                   </Button>
                 </div>
               </div>
