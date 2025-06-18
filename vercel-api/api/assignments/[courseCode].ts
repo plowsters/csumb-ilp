@@ -1,7 +1,6 @@
-
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { lucia } from '../lib/lucia';
-import { pool } from '../lib/pg';
+import { lucia } from '../../lib/lucia';
+import { pool } from '../../lib/pg';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Set CORS headers
