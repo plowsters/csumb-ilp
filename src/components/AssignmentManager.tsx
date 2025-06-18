@@ -84,16 +84,79 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
   const getResourcePreview = (assignment: Assignment) => {
     if (!assignment.file_url) return null;
 
-    // Website link
+    // Website link - static preview using screenshot service
     if (assignment.file_type === 'link') {
+      // Check if it's a YouTube link and handle specially
+      const isYouTube = assignment.file_url.includes('youtube.com/watch') || assignment.file_url.includes('youtu.be.');
+      
+      if (isYouTube) {
+        // Extract video ID from YouTube URL
+        const videoId = assignment.file_url.includes('youtube.com/watch') 
+          ? assignment.file_url.split('v=')[1]?.split('&')[0]
+          : assignment.file_url.split('youtu.be/')[1]?.split('?')[0];
+        
+        if (videoId) {
+          return (
+            <div className="mt-3 border rounded-lg overflow-hidden">
+              <div className="relative">
+                <img 
+                  src={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
+                  alt={assignment.title}
+                  className="w-full h-48 object-cover"
+                  onError={(e) => {
+                    // Fallback to standard thumbnail if maxres fails
+                    e.currentTarget.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+                  }}
+                />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="bg-red-600 rounded-full p-3">
+                    <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M8 5v14l11-7z"/>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+              <div className="p-2 bg-background border-t">
+                <a 
+                  href={assignment.file_url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-sm text-primary hover:underline truncate block"
+                >
+                  {assignment.file_url}
+                </a>
+              </div>
+            </div>
+          );
+        }
+      }
+
+      // For other websites, use a screenshot service for static preview
+      const screenshotUrl = `https://api.screenshotmachine.com?key=demo&url=${encodeURIComponent(assignment.file_url)}&dimension=1024x768`;
+      
       return (
         <div className="mt-3 border rounded-lg overflow-hidden bg-muted">
-          <iframe
-            src={assignment.file_url}
-            className="w-full h-48"
-            title={assignment.title}
-            frameBorder="0"
-            sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+          <img
+            src={screenshotUrl}
+            alt={`Preview of ${assignment.title}`}
+            className="w-full h-48 object-cover"
+            onError={(e) => {
+              // Fallback to a placeholder if screenshot fails
+              const fallback = e.currentTarget.parentElement;
+              if (fallback) {
+                fallback.innerHTML = `
+                  <div class="w-full h-48 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                    <div class="text-center">
+                      <svg class="w-12 h-12 mx-auto mb-2 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/>
+                        <polyline points="14,2 14,8 20,8"/>
+                      </svg>
+                      <p class="text-sm text-gray-500">Preview unavailable</p>
+                    </div>
+                  </div>
+                `;
+              }
+            }}
           />
           <div className="p-2 bg-background border-t">
             <a 
@@ -125,30 +188,42 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
       );
     }
 
-    // Video preview
+    // Video preview - show thumbnail only, no controls
     if (assignment.file_type?.startsWith('video/')) {
       return (
         <div className="mt-3 border rounded-lg overflow-hidden">
           <video 
             src={assignment.file_url}
-            className="w-full h-48"
-            controls
+            className="w-full h-48 object-cover"
             preload="metadata"
+            muted
+            poster=""
           />
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="bg-black bg-opacity-50 rounded-full p-3">
+              <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+            </div>
+          </div>
         </div>
       );
     }
 
-    // PDF preview (using iframe)
+    // PDF preview - static first page using PDF.js or similar service
     if (assignment.file_type?.includes('pdf')) {
+      // Use a PDF thumbnail service or embed with restricted height
       return (
         <div className="mt-3 border rounded-lg overflow-hidden bg-muted">
-          <iframe
-            src={assignment.file_url}
-            className="w-full h-48"
-            title={assignment.title}
-            frameBorder="0"
-          />
+          <div className="w-full h-48 overflow-hidden">
+            <iframe
+              src={`${assignment.file_url}#toolbar=0&navpanes=0&scrollbar=0&page=1&zoom=150`}
+              className="w-full h-64 transform scale-75 origin-top-left"
+              title={assignment.title}
+              frameBorder="0"
+              style={{ pointerEvents: 'none' }}
+            />
+          </div>
         </div>
       );
     }
