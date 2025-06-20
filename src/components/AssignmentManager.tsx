@@ -140,7 +140,6 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
               alt={`Preview of ${assignment.title}`}
               className="w-full h-96 object-cover"
               onError={() => {
-                // If screenshot fails to load, show fallback
                 console.log('Screenshot failed to load for', assignment.title);
               }}
             />
@@ -243,6 +242,7 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
 
   const generateScreenshot = async (url: string): Promise<string | null> => {
     try {
+      console.log('Generating screenshot for URL:', url);
       const screenshotResponse = await fetch(`${API_BASE_URL}/api/screenshot`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -250,9 +250,15 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
         body: JSON.stringify({ url }),
       });
 
+      console.log('Screenshot response status:', screenshotResponse.status);
+      
       if (screenshotResponse.ok) {
-        const { screenshotUrl } = await screenshotResponse.json();
-        return screenshotUrl;
+        const responseData = await screenshotResponse.json();
+        console.log('Screenshot response data:', responseData);
+        return responseData.screenshotUrl;
+      } else {
+        const errorData = await screenshotResponse.text();
+        console.error('Screenshot API error:', errorData);
       }
     } catch (error) {
       console.error('Error generating screenshot:', error);
@@ -276,11 +282,13 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
         fileUrl = linkUrl.trim();
         fileType = 'link';
         
-        // Only generate screenshot for non-YouTube links and if we don't already have one
+        // Generate screenshot for all non-YouTube links when creating or updating URL
         const isYouTube = fileUrl.includes('youtube.com/watch') || fileUrl.includes('youtu.be.');
         if (!isYouTube && (!editingAssignment || editingAssignment.file_url !== fileUrl)) {
+          console.log('Attempting to generate screenshot for:', fileUrl);
           try {
             screenshotUrl = await generateScreenshot(fileUrl);
+            console.log('Generated screenshot URL:', screenshotUrl);
           } catch (error) {
             console.error('Screenshot generation failed, continuing without screenshot:', error);
             screenshotUrl = null;
@@ -313,6 +321,8 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
         type,
       };
 
+      console.log('Saving assignment with data:', assignmentData);
+
       if (editingAssignment) {
         const response = await fetch(`${API_BASE_URL}/api/assignments/${courseCode}`, {
           method: 'PUT',
@@ -323,6 +333,9 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
         
         if (response.ok) {
           fetchAssignments();
+        } else {
+          const errorData = await response.text();
+          console.error('Update failed:', errorData);
         }
       } else {
         const response = await fetch(`${API_BASE_URL}/api/assignments/${courseCode}`, {
@@ -334,6 +347,9 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
         
         if (response.ok) {
           fetchAssignments();
+        } else {
+          const errorData = await response.text();
+          console.error('Create failed:', errorData);
         }
       }
 
