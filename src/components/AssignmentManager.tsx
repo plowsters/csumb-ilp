@@ -84,7 +84,7 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
   const getResourcePreview = (assignment: Assignment) => {
     if (!assignment.file_url) return null;
 
-    // Website link - static preview using screenshot service
+    // Website link - use stored screenshot from database
     if (assignment.file_type === 'link') {
       // Check if it's a YouTube link and handle specially
       const isYouTube = assignment.file_url.includes('youtube.com/watch') || assignment.file_url.includes('youtu.be.');
@@ -131,45 +131,70 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
         }
       }
 
-      // For other websites, use a screenshot service for static preview
-      const screenshotUrl = `https://api.screenshotmachine.com?key=demo&url=${encodeURIComponent(assignment.file_url)}&dimension=1024x768`;
-      
-      return (
-        <div className="mt-3 border rounded-lg overflow-hidden bg-muted">
-          <img
-            src={screenshotUrl}
-            alt={`Preview of ${assignment.title}`}
-            className="w-full h-48 object-cover"
-            onError={(e) => {
-              // Fallback to a placeholder if screenshot fails
-              const fallback = e.currentTarget.parentElement;
-              if (fallback) {
-                fallback.innerHTML = `
-                  <div class="w-full h-48 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                    <div class="text-center">
-                      <svg class="w-12 h-12 mx-auto mb-2 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/>
-                        <polyline points="14,2 14,8 20,8"/>
-                      </svg>
-                      <p class="text-sm text-gray-500">Preview unavailable</p>
+      // For other websites, use the stored screenshot from database
+      if (assignment.screenshot_url) {
+        return (
+          <div className="mt-3 border rounded-lg overflow-hidden">
+            <img
+              src={assignment.screenshot_url}
+              alt={`Preview of ${assignment.title}`}
+              className="w-full h-48 object-cover"
+              onError={(e) => {
+                // Fallback to a placeholder if screenshot fails to load
+                const fallback = e.currentTarget.parentElement;
+                if (fallback) {
+                  fallback.innerHTML = `
+                    <div class="w-full h-48 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                      <div class="text-center">
+                        <svg class="w-12 h-12 mx-auto mb-2 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/>
+                          <polyline points="14,2 14,8 20,8"/>
+                        </svg>
+                        <p class="text-sm text-gray-500">Preview unavailable</p>
+                      </div>
                     </div>
-                  </div>
-                `;
-              }
-            }}
-          />
-          <div className="p-2 bg-background border-t">
-            <a 
-              href={assignment.file_url} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-sm text-primary hover:underline truncate block"
-            >
-              {assignment.file_url}
-            </a>
+                  `;
+                }
+              }}
+            />
+            <div className="p-2 bg-background border-t">
+              <a 
+                href={assignment.file_url} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-sm text-primary hover:underline truncate block"
+              >
+                {assignment.file_url}
+              </a>
+            </div>
           </div>
-        </div>
-      );
+        );
+      } else {
+        // No screenshot available, show placeholder
+        return (
+          <div className="mt-3 border rounded-lg overflow-hidden bg-muted">
+            <div className="w-full h-48 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+              <div className="text-center">
+                <svg className="w-12 h-12 mx-auto mb-2 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/>
+                  <polyline points="14,2 14,8 20,8"/>
+                </svg>
+                <p className="text-sm text-gray-500">Preview generating...</p>
+              </div>
+            </div>
+            <div className="p-2 bg-background border-t">
+              <a 
+                href={assignment.file_url} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-sm text-primary hover:underline truncate block"
+              >
+                {assignment.file_url}
+              </a>
+            </div>
+          </div>
+        );
+      }
     }
 
     // Image preview

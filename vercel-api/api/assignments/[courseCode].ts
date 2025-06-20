@@ -17,6 +17,52 @@ function setCorsHeaders(res: VercelResponse, origin?: string) {
   res.setHeader("Access-Control-Max-Age", "86400");
 }
 
+async function generateScreenshotForLink(fileUrl: string): Promise<string | null> {
+  try {
+    // Check if it's a YouTube link
+    const isYouTube = fileUrl.includes('youtube.com/watch') || fileUrl.includes('youtu.be/');
+    if (isYouTube) {
+      return null; // Don't generate screenshots for YouTube
+    }
+
+    const apiKey = process.env.SCREENSHOT_API_KEY;
+    if (!apiKey) {
+      console.error("SCREENSHOT_API_KEY not configured");
+      return null;
+    }
+
+    console.log(`Generating screenshot for: ${fileUrl}`);
+    
+    const screenshotUrl = `https://api.screenshotmachine.com?key=${apiKey}&url=${encodeURIComponent(fileUrl)}&dimension=1920x1080&format=png`;
+    
+    const screenshotResponse = await fetch(screenshotUrl);
+    if (!screenshotResponse.ok) {
+      console.error(`Screenshot API returned ${screenshotResponse.status}`);
+      return null;
+    }
+    
+    const screenshotBuffer = await screenshotResponse.arrayBuffer();
+    
+    // Generate filename
+    const urlObj = new URL(fileUrl);
+    const filename = `screenshots/${urlObj.hostname}-${Date.now()}.png`;
+    
+    // Save to blob storage
+    const { put } = await import('@vercel/blob');
+    const blob = await put(filename, screenshotBuffer, {
+      access: 'public',
+      contentType: 'image/png',
+    });
+    
+    console.log(`Screenshot saved: ${blob.url}`);
+    return blob.url;
+    
+  } catch (error) {
+    console.error("Error generating screenshot:", error);
+    return null;
+  }
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const origin = req.headers.origin;
   setCorsHeaders(res, origin);
@@ -60,9 +106,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (req.method === "POST") {
-      const { title, description, fileUrl, fileType, type, screenshotUrl } = req.body;
+      const { title, description, fileUrl, fileType, type } = req.body;
       
-      const rows = await pg`INSERT INTO assignments (course_code, title, description, file_url, file_type, type, created_at, position, screenshot_url) VALUES (${courseCode}, ${title}, ${description}, ${fileUrl}, ${fileType}, ${type || 'assignment'}, NOW(), (SELECT COALESCE(MAX(position), -1) + 1 FROM assignments WHERE course_code = ${courseCode}), ${screenshotUrl || null}) RETURNING *`;
+      let screenshotUrl = null;
+      
+      // Generate screenshot for link assignments (except YouTube)
+      if (fileType === 'link' && fileUrl) {
+        screenshotUrl = await generateScreenshotForLink(fileUrl);
+      }
+      
+      const rows = await pg`INSERT INTO assignments (course_code, title, description, file_url, file_type, type, created_at, position, screenshot_url) VALUES (${courseCode}, ${title}, ${description}, ${fileUrl}, ${fileType}, ${type || 'assignment'}, NOW(), (SELECT COALESCE(MAX(position), -1) + 1 FROM assignments WHERE course_code = ${courseCode}), ${screenshotUrl}) RETURNING *`;
       
       return res.status(201).json(rows[0]);
     }
@@ -91,7 +144,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method === "PUT") {
       const { id, title, description, fileUrl, fileType, screenshotUrl } = req.body;
       
-      const rows = await pg`UPDATE assignments SET title = ${title}, description = ${description}, file_url = ${fileUrl}, file_type = ${fileType}, screenshot_url = ${screenshotUrl || null} WHERE id = ${id} AND course_code = ${courseCode} RETURNING *`;
+      let newScreenshotUrl = screenshotUrl;
+      
+      // Generate new screenshot if the URL changed and it's a link (except YouTube)
+      if (fileType === 'link' && fileUrl) {
+        const existingAssignment = await pg`SELECT file_url, screenshot_url FROM assignments WHERE id = ${id}`;
+        if (existingAssignment.length > 0 && existingAssignment[0].file_url !== fileUrl) {
+          // URL changed, generate new screenshot
+          newScreenshotUrl = await generateScreenshotForLink(fileUrl);
+        }
+      }
+      
+      const rows = await pg`UPDATE assignments SET title = ${title}, description = ${description}, file_url = ${fileUrl}, file_type = ${fileType}, screenshot_url = ${newScreenshotUrl} WHERE id = ${id} AND course_code = ${courseCode} RETURNING *`;
       
       return res.status(200).json(rows[0]);
     }

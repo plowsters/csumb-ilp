@@ -1,5 +1,6 @@
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { put } from '@vercel/blob';
 import { lucia, authError } from "../lib/lucia.js";
 import { pg, pgError } from "../lib/pg.js";
 
@@ -72,13 +73,34 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     console.log(`Generating screenshot for URL: ${url}`);
     
-    // Generate screenshot using screenshotmachine.com API
-    const screenshotUrl = `https://api.screenshotmachine.com?key=${apiKey}&url=${encodeURIComponent(url)}&dimension=1024x768&format=png`;
+    // Generate screenshot using screenshotmachine.com API with your key
+    const screenshotUrl = `https://api.screenshotmachine.com?key=${apiKey}&url=${encodeURIComponent(url)}&dimension=1920x1080&format=png`;
     
-    console.log(`Screenshot URL generated: ${screenshotUrl}`);
+    console.log(`Fetching screenshot from: ${screenshotUrl}`);
+    
+    // Fetch the screenshot image
+    const screenshotResponse = await fetch(screenshotUrl);
+    
+    if (!screenshotResponse.ok) {
+      throw new Error(`Screenshot API returned ${screenshotResponse.status}`);
+    }
+    
+    const screenshotBuffer = await screenshotResponse.arrayBuffer();
+    
+    // Generate a filename based on the URL
+    const urlObj = new URL(url);
+    const filename = `screenshots/${urlObj.hostname}-${Date.now()}.png`;
+    
+    // Save to Vercel blob storage
+    const blob = await put(filename, screenshotBuffer, {
+      access: 'public',
+      contentType: 'image/png',
+    });
+    
+    console.log(`Screenshot saved to blob storage: ${blob.url}`);
     
     return res.status(200).json({ 
-      screenshotUrl: screenshotUrl,
+      screenshotUrl: blob.url,
       success: true 
     });
 
