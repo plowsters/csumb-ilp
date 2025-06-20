@@ -60,9 +60,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (req.method === "POST") {
-      const { title, description, fileUrl, fileType, type } = req.body;
+      const { title, description, fileUrl, fileType, type, screenshotUrl } = req.body;
       
-      const rows = await pg`INSERT INTO assignments (course_code, title, description, file_url, file_type, type, created_at, position) VALUES (${courseCode}, ${title}, ${description}, ${fileUrl}, ${fileType}, ${type || 'assignment'}, NOW(), (SELECT COALESCE(MAX(position), -1) + 1 FROM assignments WHERE course_code = ${courseCode})) RETURNING *`;
+      const rows = await pg`INSERT INTO assignments (course_code, title, description, file_url, file_type, type, created_at, position, screenshot_url) VALUES (${courseCode}, ${title}, ${description}, ${fileUrl}, ${fileType}, ${type || 'assignment'}, NOW(), (SELECT COALESCE(MAX(position), -1) + 1 FROM assignments WHERE course_code = ${courseCode}), ${screenshotUrl || null}) RETURNING *`;
       
       return res.status(201).json(rows[0]);
     }
@@ -82,16 +82,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         await pg`COMMIT`;
       } catch (transactionError) {
         await pg`ROLLBACK`;
-        throw transactionError; // Re-throw to be caught by the outer catch block
+        throw transactionError;
       }
 
       return res.status(200).json({ success: true, message: "Order updated." });
     }
 
     if (req.method === "PUT") {
-      const { id, title, description, fileUrl, fileType } = req.body;
+      const { id, title, description, fileUrl, fileType, screenshotUrl } = req.body;
       
-      const rows = await pg`UPDATE assignments SET title = ${title}, description = ${description}, file_url = ${fileUrl}, file_type = ${fileType} WHERE id = ${id} AND course_code = ${courseCode} RETURNING *`;
+      const rows = await pg`UPDATE assignments SET title = ${title}, description = ${description}, file_url = ${fileUrl}, file_type = ${fileType}, screenshot_url = ${screenshotUrl || null} WHERE id = ${id} AND course_code = ${courseCode} RETURNING *`;
       
       return res.status(200).json(rows[0]);
     }

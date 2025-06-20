@@ -23,7 +23,8 @@ CREATE TABLE assignments (
     file_type VARCHAR(100),
     type VARCHAR(20) DEFAULT 'assignment', -- 'assignment' or 'resource'
     created_at TIMESTAMP DEFAULT NOW(),
-    position INTEGER
+    position INTEGER,
+    screenshot_url TEXT
 );
 
 -- Insert admin user (replace 'bug' with your desired username)
@@ -33,3 +34,6 @@ INSERT INTO users (username) VALUES ('bug');
 CREATE INDEX idx_assignments_course_code ON assignments(course_code);
 CREATE INDEX idx_assignments_type ON assignments(type);
 CREATE INDEX idx_sessions_user_id ON sessions(user_id);
+
+-- Add screenshot_url column if it doesn't exist (for existing databases)
+ALTER TABLE assignments ADD COLUMN IF NOT EXISTS screenshot_url TEXT;
