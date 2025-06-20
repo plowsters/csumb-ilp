@@ -10,6 +10,7 @@ import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-ki
 import SortableAssignmentItem from './SortableAssignmentItem';
 import { Textarea } from './ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { AspectRatio } from './ui/aspect-ratio';
 
 export interface Assignment {
   id: string;
@@ -21,6 +22,7 @@ export interface Assignment {
   type: 'assignment' | 'resource';
   created_at: Date;
   position?: number;
+  screenshot_url?: string;
 }
 
 interface AssignmentManagerProps {
@@ -98,24 +100,26 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
         if (videoId) {
           return (
             <div className="mt-3 border rounded-lg overflow-hidden">
-              <div className="relative">
-                <img 
-                  src={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
-                  alt={assignment.title}
-                  className="w-full h-48 object-cover"
-                  onError={(e) => {
-                    // Fallback to standard thumbnail if maxres fails
-                    e.currentTarget.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-                  }}
-                />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="bg-red-600 rounded-full p-3">
-                    <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M8 5v14l11-7z"/>
-                    </svg>
+              <AspectRatio ratio={16 / 9}>
+                <div className="relative w-full h-full">
+                  <img 
+                    src={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
+                    alt={assignment.title}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      // Fallback to standard thumbnail if maxres fails
+                      e.currentTarget.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+                    }}
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="bg-red-600 rounded-full p-3">
+                      <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z"/>
+                      </svg>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </AspectRatio>
               <div className="p-2 bg-background border-t">
                 <a 
                   href={assignment.file_url} 
@@ -131,32 +135,34 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
         }
       }
 
-      // For other websites, use the stored screenshot from database
+      // For other websites, use the stored screenshot from database with A4 proportions
       if (assignment.screenshot_url) {
         return (
           <div className="mt-3 border rounded-lg overflow-hidden">
-            <img
-              src={assignment.screenshot_url}
-              alt={`Preview of ${assignment.title}`}
-              className="w-full h-48 object-cover"
-              onError={(e) => {
-                // Fallback to a placeholder if screenshot fails to load
-                const fallback = e.currentTarget.parentElement;
-                if (fallback) {
-                  fallback.innerHTML = `
-                    <div class="w-full h-48 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                      <div class="text-center">
-                        <svg class="w-12 h-12 mx-auto mb-2 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/>
-                          <polyline points="14,2 14,8 20,8"/>
-                        </svg>
-                        <p class="text-sm text-gray-500">Preview unavailable</p>
+            <AspectRatio ratio={210 / 297}>
+              <img
+                src={assignment.screenshot_url}
+                alt={`Preview of ${assignment.title}`}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  // Fallback to a placeholder if screenshot fails to load
+                  const fallback = e.currentTarget.parentElement;
+                  if (fallback) {
+                    fallback.innerHTML = `
+                      <div class="w-full h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                        <div class="text-center">
+                          <svg class="w-12 h-12 mx-auto mb-2 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/>
+                            <polyline points="14,2 14,8 20,8"/>
+                          </svg>
+                          <p class="text-sm text-gray-500">Preview unavailable</p>
+                        </div>
                       </div>
-                    </div>
-                  `;
-                }
-              }}
-            />
+                    `;
+                  }
+                }}
+              />
+            </AspectRatio>
             <div className="p-2 bg-background border-t">
               <a 
                 href={assignment.file_url} 
@@ -170,18 +176,20 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
           </div>
         );
       } else {
-        // No screenshot available, show placeholder
+        // No screenshot available, show placeholder with A4 proportions
         return (
           <div className="mt-3 border rounded-lg overflow-hidden bg-muted">
-            <div className="w-full h-48 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-              <div className="text-center">
-                <svg className="w-12 h-12 mx-auto mb-2 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/>
-                  <polyline points="14,2 14,8 20,8"/>
-                </svg>
-                <p className="text-sm text-gray-500">Preview generating...</p>
+            <AspectRatio ratio={210 / 297}>
+              <div className="w-full h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                <div className="text-center">
+                  <svg className="w-12 h-12 mx-auto mb-2 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/>
+                    <polyline points="14,2 14,8 20,8"/>
+                  </svg>
+                  <p className="text-sm text-gray-500">Preview generating...</p>
+                </div>
               </div>
-            </div>
+            </AspectRatio>
             <div className="p-2 bg-background border-t">
               <a 
                 href={assignment.file_url} 
@@ -197,58 +205,63 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
       }
     }
 
-    // Image preview
+    // Image preview with A4 proportions
     if (assignment.file_type?.startsWith('image/')) {
       return (
         <div className="mt-3 border rounded-lg overflow-hidden">
-          <img 
-            src={assignment.file_url} 
-            alt={assignment.title}
-            className="w-full h-48 object-cover"
-            onError={(e) => {
-              e.currentTarget.style.display = 'none';
-            }}
-          />
+          <AspectRatio ratio={210 / 297}>
+            <img 
+              src={assignment.file_url} 
+              alt={assignment.title}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+              }}
+            />
+          </AspectRatio>
         </div>
       );
     }
 
-    // Video preview - show thumbnail only, no controls
+    // Video preview - show thumbnail only, no controls with 16:9 ratio
     if (assignment.file_type?.startsWith('video/')) {
       return (
         <div className="mt-3 border rounded-lg overflow-hidden">
-          <video 
-            src={assignment.file_url}
-            className="w-full h-48 object-cover"
-            preload="metadata"
-            muted
-            poster=""
-          />
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="bg-black bg-opacity-50 rounded-full p-3">
-              <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M8 5v14l11-7z"/>
-              </svg>
+          <AspectRatio ratio={16 / 9}>
+            <div className="relative w-full h-full">
+              <video 
+                src={assignment.file_url}
+                className="w-full h-full object-cover"
+                preload="metadata"
+                muted
+                poster=""
+              />
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="bg-black bg-opacity-50 rounded-full p-3">
+                  <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z"/>
+                  </svg>
+                </div>
+              </div>
             </div>
-          </div>
+          </AspectRatio>
         </div>
       );
     }
 
-    // PDF preview - static first page using PDF.js or similar service
+    // PDF preview - static first page using PDF.js or similar service with A4 proportions
     if (assignment.file_type?.includes('pdf')) {
-      // Use a PDF thumbnail service or embed with restricted height
       return (
         <div className="mt-3 border rounded-lg overflow-hidden bg-muted">
-          <div className="w-full h-48 overflow-hidden">
+          <AspectRatio ratio={210 / 297}>
             <iframe
               src={`${assignment.file_url}#toolbar=0&navpanes=0&scrollbar=0&page=1&zoom=150`}
-              className="w-full h-64 transform scale-75 origin-top-left"
+              className="w-full h-full"
               title={assignment.title}
               frameBorder="0"
               style={{ pointerEvents: 'none' }}
             />
-          </div>
+          </AspectRatio>
         </div>
       );
     }
