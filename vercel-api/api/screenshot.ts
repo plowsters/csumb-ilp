@@ -1,8 +1,18 @@
 
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { put } from '@vercel/blob';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  // Set CORS headers
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Origin', 'https://plowsters.github.io');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+  res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization');
+
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -17,35 +27,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Get API key from environment variables
     const API_KEY = process.env.SCREENSHOT_API_KEY;
     if (!API_KEY) {
-      return res.status(500).json({ error: 'Screenshot API key not configured' });
+      console.log('Screenshot API key not configured, returning null');
+      return res.status(200).json({ screenshotUrl: null });
     }
 
     // Generate screenshot using ScreenshotMachine API
     const screenshotUrl = `https://api.screenshotmachine.com?key=${API_KEY}&url=${encodeURIComponent(url)}&dimension=1200x900&format=png`;
     
-    // Fetch the screenshot
-    const screenshotResponse = await fetch(screenshotUrl);
-    
-    if (!screenshotResponse.ok) {
-      throw new Error('Failed to generate screenshot');
-    }
-
-    const screenshotBuffer = await screenshotResponse.arrayBuffer();
-    
-    // Generate a unique filename
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const domain = new URL(url).hostname.replace(/[^a-zA-Z0-9]/g, '-');
-    const filename = `screenshot-${domain}-${timestamp}.png`;
-
-    // Store the screenshot in Vercel Blob
-    const blob = await put(filename, screenshotBuffer, {
-      access: 'public',
-      contentType: 'image/png'
-    });
-
-    return res.status(200).json({ screenshotUrl: blob.url });
+    // For now, just return the screenshot URL without storing in blob
+    // This avoids potential @vercel/blob dependency issues
+    return res.status(200).json({ screenshotUrl });
   } catch (error) {
     console.error('Screenshot generation error:', error);
-    return res.status(500).json({ error: 'Failed to generate screenshot' });
+    return res.status(200).json({ screenshotUrl: null });
   }
 }

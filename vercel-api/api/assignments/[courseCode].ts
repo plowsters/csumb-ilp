@@ -1,3 +1,4 @@
+
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { lucia } from '../../lib/lucia';
 import { pool } from '../../lib/pg';
@@ -52,7 +53,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       const result = await pool.query(
         'INSERT INTO assignments (course_code, title, description, file_url, file_type, screenshot_url, type) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
-        [courseCode, title, description, fileUrl, fileType, screenshotUrl, type || 'assignment']
+        [courseCode, title, description, fileUrl || null, fileType || null, screenshotUrl || null, type || 'assignment']
       );
       
       res.status(201).json(result.rows[0]);
@@ -65,7 +66,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       const result = await pool.query(
         'UPDATE assignments SET title = $1, description = $2, file_url = $3, file_type = $4, screenshot_url = $5 WHERE id = $6 AND course_code = $7 RETURNING *',
-        [title, description, fileUrl, fileType, screenshotUrl, id, courseCode]
+        [title, description, fileUrl || null, fileType || null, screenshotUrl || null, id, courseCode]
       );
       
       if (result.rows.length === 0) {

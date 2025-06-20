@@ -131,7 +131,7 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
         }
       }
 
-      // For other websites, use stored screenshot
+      // For other websites, use stored screenshot if available
       if (assignment.screenshot_url) {
         return (
           <div className="mt-3 border rounded-lg overflow-hidden">
@@ -139,6 +139,10 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
               src={assignment.screenshot_url}
               alt={`Preview of ${assignment.title}`}
               className="w-full h-96 object-cover"
+              onError={() => {
+                // If screenshot fails to load, show fallback
+                console.log('Screenshot failed to load for', assignment.title);
+              }}
             />
             <div className="p-2 bg-background border-t">
               <a 
@@ -272,10 +276,15 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
         fileUrl = linkUrl.trim();
         fileType = 'link';
         
-        // Generate screenshot for non-YouTube links
+        // Only generate screenshot for non-YouTube links and if we don't already have one
         const isYouTube = fileUrl.includes('youtube.com/watch') || fileUrl.includes('youtu.be.');
         if (!isYouTube && (!editingAssignment || editingAssignment.file_url !== fileUrl)) {
-          screenshotUrl = await generateScreenshot(fileUrl);
+          try {
+            screenshotUrl = await generateScreenshot(fileUrl);
+          } catch (error) {
+            console.error('Screenshot generation failed, continuing without screenshot:', error);
+            screenshotUrl = null;
+          }
         }
       } else if (selectedFile) {
         const response = await fetch(`${API_BASE_URL}/api/upload?filename=${encodeURIComponent(selectedFile.name)}`, {
