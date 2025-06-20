@@ -21,7 +21,6 @@ export interface Assignment {
   type: 'assignment' | 'resource';
   created_at: Date;
   position?: number;
-  screenshot_url?: string;
 }
 
 interface AssignmentManagerProps {
@@ -85,7 +84,7 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
   const getResourcePreview = (assignment: Assignment) => {
     if (!assignment.file_url) return null;
 
-    // Website link - use stored screenshot
+    // Website link - static preview using screenshot service
     if (assignment.file_type === 'link') {
       // Check if it's a YouTube link and handle specially
       const isYouTube = assignment.file_url.includes('youtube.com/watch') || assignment.file_url.includes('youtu.be.');
@@ -103,8 +102,9 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
                 <img 
                   src={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
                   alt={assignment.title}
-                  className="w-full h-64 object-cover"
+                  className="w-full h-48 object-cover"
                   onError={(e) => {
+                    // Fallback to standard thumbnail if maxres fails
                     e.currentTarget.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
                   }}
                 />
@@ -131,44 +131,33 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
         }
       }
 
-      // For other websites, use stored screenshot if available
-      if (assignment.screenshot_url) {
-        return (
-          <div className="mt-3 border rounded-lg overflow-hidden">
-            <img
-              src={assignment.screenshot_url}
-              alt={`Preview of ${assignment.title}`}
-              className="w-full h-96 object-cover"
-              onError={() => {
-                console.log('Screenshot failed to load for', assignment.title);
-              }}
-            />
-            <div className="p-2 bg-background border-t">
-              <a 
-                href={assignment.file_url} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-sm text-primary hover:underline truncate block"
-              >
-                {assignment.file_url}
-              </a>
-            </div>
-          </div>
-        );
-      }
-
-      // Fallback if no screenshot
+      // For other websites, use a screenshot service for static preview
+      const screenshotUrl = `https://api.screenshotmachine.com?key=demo&url=${encodeURIComponent(assignment.file_url)}&dimension=1024x768`;
+      
       return (
         <div className="mt-3 border rounded-lg overflow-hidden bg-muted">
-          <div className="w-full h-96 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-            <div className="text-center">
-              <svg className="w-12 h-12 mx-auto mb-2 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/>
-                <polyline points="14,2 14,8 20,8"/>
-              </svg>
-              <p className="text-sm text-gray-500">Preview unavailable</p>
-            </div>
-          </div>
+          <img
+            src={screenshotUrl}
+            alt={`Preview of ${assignment.title}`}
+            className="w-full h-48 object-cover"
+            onError={(e) => {
+              // Fallback to a placeholder if screenshot fails
+              const fallback = e.currentTarget.parentElement;
+              if (fallback) {
+                fallback.innerHTML = `
+                  <div class="w-full h-48 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                    <div class="text-center">
+                      <svg class="w-12 h-12 mx-auto mb-2 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/>
+                        <polyline points="14,2 14,8 20,8"/>
+                      </svg>
+                      <p class="text-sm text-gray-500">Preview unavailable</p>
+                    </div>
+                  </div>
+                `;
+              }
+            }}
+          />
           <div className="p-2 bg-background border-t">
             <a 
               href={assignment.file_url} 
@@ -190,7 +179,7 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
           <img 
             src={assignment.file_url} 
             alt={assignment.title}
-            className="w-full h-96 object-cover"
+            className="w-full h-48 object-cover"
             onError={(e) => {
               e.currentTarget.style.display = 'none';
             }}
@@ -202,10 +191,10 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
     // Video preview - show thumbnail only, no controls
     if (assignment.file_type?.startsWith('video/')) {
       return (
-        <div className="mt-3 border rounded-lg overflow-hidden relative">
+        <div className="mt-3 border rounded-lg overflow-hidden">
           <video 
             src={assignment.file_url}
-            className="w-full h-64 object-cover"
+            className="w-full h-48 object-cover"
             preload="metadata"
             muted
             poster=""
@@ -221,48 +210,24 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
       );
     }
 
-    // PDF preview - static first page
+    // PDF preview - static first page using PDF.js or similar service
     if (assignment.file_type?.includes('pdf')) {
+      // Use a PDF thumbnail service or embed with restricted height
       return (
         <div className="mt-3 border rounded-lg overflow-hidden bg-muted">
-          <div className="w-full h-96 overflow-hidden">
+          <div className="w-full h-48 overflow-hidden">
             <iframe
               src={`${assignment.file_url}#toolbar=0&navpanes=0&scrollbar=0&page=1&zoom=150`}
-              className="w-full h-full transform scale-75 origin-top-left pointer-events-none"
+              className="w-full h-64 transform scale-75 origin-top-left"
               title={assignment.title}
               frameBorder="0"
+              style={{ pointerEvents: 'none' }}
             />
           </div>
         </div>
       );
     }
 
-    return null;
-  };
-
-  const generateScreenshot = async (url: string): Promise<string | null> => {
-    try {
-      console.log('Generating screenshot for URL:', url);
-      const screenshotResponse = await fetch(`${API_BASE_URL}/api/screenshot`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ url }),
-      });
-
-      console.log('Screenshot response status:', screenshotResponse.status);
-      
-      if (screenshotResponse.ok) {
-        const responseData = await screenshotResponse.json();
-        console.log('Screenshot response data:', responseData);
-        return responseData.screenshotUrl;
-      } else {
-        const errorData = await screenshotResponse.text();
-        console.error('Screenshot API error:', errorData);
-      }
-    } catch (error) {
-      console.error('Error generating screenshot:', error);
-    }
     return null;
   };
 
@@ -276,24 +241,10 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
     try {
       let fileUrl = editingAssignment?.file_url;
       let fileType = editingAssignment?.file_type;
-      let screenshotUrl = editingAssignment?.screenshot_url;
 
       if (resourceType === 'link') {
         fileUrl = linkUrl.trim();
         fileType = 'link';
-        
-        // Generate screenshot for all non-YouTube links when creating or updating URL
-        const isYouTube = fileUrl.includes('youtube.com/watch') || fileUrl.includes('youtu.be.');
-        if (!isYouTube && (!editingAssignment || editingAssignment.file_url !== fileUrl)) {
-          console.log('Attempting to generate screenshot for:', fileUrl);
-          try {
-            screenshotUrl = await generateScreenshot(fileUrl);
-            console.log('Generated screenshot URL:', screenshotUrl);
-          } catch (error) {
-            console.error('Screenshot generation failed, continuing without screenshot:', error);
-            screenshotUrl = null;
-          }
-        }
       } else if (selectedFile) {
         const response = await fetch(`${API_BASE_URL}/api/upload?filename=${encodeURIComponent(selectedFile.name)}`, {
           method: 'POST',
@@ -317,11 +268,8 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
         description: description.trim(),
         fileUrl,
         fileType,
-        screenshotUrl,
         type,
       };
-
-      console.log('Saving assignment with data:', assignmentData);
 
       if (editingAssignment) {
         const response = await fetch(`${API_BASE_URL}/api/assignments/${courseCode}`, {
@@ -333,9 +281,6 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
         
         if (response.ok) {
           fetchAssignments();
-        } else {
-          const errorData = await response.text();
-          console.error('Update failed:', errorData);
         }
       } else {
         const response = await fetch(`${API_BASE_URL}/api/assignments/${courseCode}`, {
@@ -347,9 +292,6 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
         
         if (response.ok) {
           fetchAssignments();
-        } else {
-          const errorData = await response.text();
-          console.error('Create failed:', errorData);
         }
       }
 
@@ -429,6 +371,7 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
       });
     } catch (error) {
       console.error('Error updating assignment order:', error);
+      // Revert on error
       fetchAssignments();
     }
   };
