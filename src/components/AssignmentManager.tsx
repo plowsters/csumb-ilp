@@ -99,7 +99,12 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
         
         if (videoId) {
           return (
-            <div className="mt-3 border rounded-lg overflow-hidden">
+            <a 
+              href={assignment.file_url} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="block mt-3 border rounded-lg overflow-hidden hover:opacity-80 transition-opacity"
+            >
               <AspectRatio ratio={16 / 9}>
                 <div className="relative w-full h-full">
                   <img 
@@ -121,25 +126,25 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
                 </div>
               </AspectRatio>
               <div className="p-2 bg-background border-t">
-                <a 
-                  href={assignment.file_url} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-sm text-primary hover:underline truncate block"
-                >
+                <span className="text-sm text-primary hover:underline truncate block">
                   {assignment.file_url}
-                </a>
+                </span>
               </div>
-            </div>
+            </a>
           );
         }
       }
 
-      // For other websites, use the stored screenshot from database with A4 proportions
+      // For other websites, use the stored screenshot from database with 16:9 ratio
       if (assignment.screenshot_url) {
         return (
-          <div className="mt-3 border rounded-lg overflow-hidden">
-            <AspectRatio ratio={210 / 297}>
+          <a 
+            href={assignment.file_url} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="block mt-3 border rounded-lg overflow-hidden hover:opacity-80 transition-opacity"
+          >
+            <AspectRatio ratio={16 / 9}>
               <img
                 src={assignment.screenshot_url}
                 alt={`Preview of ${assignment.title}`}
@@ -164,22 +169,22 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
               />
             </AspectRatio>
             <div className="p-2 bg-background border-t">
-              <a 
-                href={assignment.file_url} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-sm text-primary hover:underline truncate block"
-              >
+              <span className="text-sm text-primary hover:underline truncate block">
                 {assignment.file_url}
-              </a>
+              </span>
             </div>
-          </div>
+          </a>
         );
       } else {
-        // No screenshot available, show placeholder with A4 proportions
+        // No screenshot available, show placeholder with 16:9 ratio
         return (
-          <div className="mt-3 border rounded-lg overflow-hidden bg-muted">
-            <AspectRatio ratio={210 / 297}>
+          <a 
+            href={assignment.file_url} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="block mt-3 border rounded-lg overflow-hidden bg-muted hover:opacity-80 transition-opacity"
+          >
+            <AspectRatio ratio={16 / 9}>
               <div className="w-full h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
                 <div className="text-center">
                   <svg className="w-12 h-12 mx-auto mb-2 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
@@ -191,25 +196,25 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
               </div>
             </AspectRatio>
             <div className="p-2 bg-background border-t">
-              <a 
-                href={assignment.file_url} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-sm text-primary hover:underline truncate block"
-              >
+              <span className="text-sm text-primary hover:underline truncate block">
                 {assignment.file_url}
-              </a>
+              </span>
             </div>
-          </div>
+          </a>
         );
       }
     }
 
-    // Image preview with A4 proportions
-    if (assignment.file_type?.startsWith('image/')) {
-      return (
-        <div className="mt-3 border rounded-lg overflow-hidden">
-          <AspectRatio ratio={210 / 297}>
+    // All other file types (images, videos, PDFs) use 16:9 ratio and are clickable
+    return (
+      <a 
+        href={assignment.file_url} 
+        target="_blank" 
+        rel="noopener noreferrer"
+        className="block mt-3 border rounded-lg overflow-hidden hover:opacity-80 transition-opacity"
+      >
+        <AspectRatio ratio={16 / 9}>
+          {assignment.file_type?.startsWith('image/') ? (
             <img 
               src={assignment.file_url} 
               alt={assignment.title}
@@ -218,16 +223,7 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
                 e.currentTarget.style.display = 'none';
               }}
             />
-          </AspectRatio>
-        </div>
-      );
-    }
-
-    // Video preview - show thumbnail only, no controls with 16:9 ratio
-    if (assignment.file_type?.startsWith('video/')) {
-      return (
-        <div className="mt-3 border rounded-lg overflow-hidden">
-          <AspectRatio ratio={16 / 9}>
+          ) : assignment.file_type?.startsWith('video/') ? (
             <div className="relative w-full h-full">
               <video 
                 src={assignment.file_url}
@@ -244,16 +240,7 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
                 </div>
               </div>
             </div>
-          </AspectRatio>
-        </div>
-      );
-    }
-
-    // PDF preview - static first page using PDF.js or similar service with A4 proportions
-    if (assignment.file_type?.includes('pdf')) {
-      return (
-        <div className="mt-3 border rounded-lg overflow-hidden bg-muted">
-          <AspectRatio ratio={210 / 297}>
+          ) : assignment.file_type?.includes('pdf') ? (
             <iframe
               src={`${assignment.file_url}#toolbar=0&navpanes=0&scrollbar=0&page=1&zoom=150`}
               className="w-full h-full"
@@ -261,12 +248,20 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
               frameBorder="0"
               style={{ pointerEvents: 'none' }}
             />
-          </AspectRatio>
-        </div>
-      );
-    }
-
-    return null;
+          ) : (
+            <div className="w-full h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+              <div className="text-center">
+                <svg className="w-12 h-12 mx-auto mb-2 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/>
+                  <polyline points="14,2 14,8 20,8"/>
+                </svg>
+                <p className="text-sm text-gray-500">File preview</p>
+              </div>
+            </div>
+          )}
+        </AspectRatio>
+      </a>
+    );
   };
 
   const handleSave = async () => {

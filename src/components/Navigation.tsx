@@ -15,24 +15,41 @@ const Navigation = () => {
   const [showMobileCourses, setShowMobileCourses] = useState(false);
 
   const courses = [
-    { code: 'CST 300', name: 'Major ProSeminar', path: '/cst300' },
-    { code: 'CST 338', name: 'Software Design', path: '/cst338' },
-    { code: 'CST 311', name: 'Intro to Computer Networks', path: '/cst311' },
-    { code: 'CST 334', name: 'Operating Systems', path: '/cst334' },
-    { code: 'CST 336', name: 'Internet Programming', path: '/cst336' },
-    { code: 'CST 363', name: 'Intro to Database Systems', path: '/cst363' },
-    { code: 'CST 370', name: 'Design and Analysis of Algorithms', path: '/cst370' },
-    { code: 'CST 438', name: 'Software Engineering', path: '/cst438' },
-    { code: 'CST 462S', name: 'Race, Gender, Class in the Digital World', path: '/cst462s' },
-    { code: 'CST 489', name: 'Capstone Project Planning', path: '/cst489' },
-    { code: 'CST 499', name: 'Computer Science Capstone', path: '/cst499' },
+    { code: 'CST 300', name: 'Major ProSeminar', path: '/cst300', isCompleted: true },
+    { code: 'CST 338', name: 'Software Design', path: '/cst338', isCompleted: false },
+    { code: 'CST 311', name: 'Intro to Computer Networks', path: '/cst311', isCompleted: false },
+    { code: 'CST 334', name: 'Operating Systems', path: '/cst334', isCompleted: false },
+    { code: 'CST 336', name: 'Internet Programming', path: '/cst336', isCompleted: false },
+    { code: 'CST 363', name: 'Intro to Database Systems', path: '/cst363', isCompleted: false },
+    { code: 'CST 370', name: 'Design and Analysis of Algorithms', path: '/cst370', isCompleted: false },
+    { code: 'CST 438', name: 'Software Engineering', path: '/cst438', isCompleted: false },
+    { code: 'CST 462S', name: 'Race, Gender, Class in the Digital World', path: '/cst462s', isCompleted: false },
+    { code: 'CST 489', name: 'Capstone Project Planning', path: '/cst489', isCompleted: false },
+    { code: 'CST 499', name: 'Computer Science Capstone', path: '/cst499', isCompleted: false },
   ];
 
-  const mobileLinkClasses = (path: string) => cn(
+  const mobileLinkClasses = (path: string, isCompleted?: boolean) => cn(
     "block px-3 py-2 rounded-md text-base font-medium transition-colors text-left",
-    location.pathname === path
+    isCompleted && "bg-green-100 dark:bg-green-900/30 border border-green-200 dark:border-green-700/50",
+    location.pathname === path && !isCompleted
       ? "bg-accent text-accent-foreground"
-      : "text-muted-foreground hover:text-accent-foreground hover:bg-accent"
+      : location.pathname === path && isCompleted
+      ? "bg-green-200 dark:bg-green-800/50 text-green-900 dark:text-green-100"
+      : !isCompleted
+      ? "text-muted-foreground hover:text-accent-foreground hover:bg-accent"
+      : "text-green-800 dark:text-green-200 hover:bg-green-200 dark:hover:bg-green-800/50"
+  );
+
+  const desktopCourseClasses = (path: string, isCompleted?: boolean) => cn(
+    "block px-4 py-2 text-sm transition-colors",
+    isCompleted && "bg-green-100 dark:bg-green-900/30 border-l-2 border-green-500",
+    location.pathname === path && !isCompleted
+      ? "bg-accent text-accent-foreground"
+      : location.pathname === path && isCompleted
+      ? "bg-green-200 dark:bg-green-800/50 text-green-900 dark:text-green-100"
+      : !isCompleted
+      ? "text-card-foreground hover:bg-accent hover:text-accent-foreground"
+      : "text-green-800 dark:text-green-200 hover:bg-green-200 dark:hover:bg-green-800/50"
   );
 
   return (
@@ -73,12 +90,7 @@ const Navigation = () => {
                         <Link
                         key={course.path}
                         to={course.path}
-                        className={cn(
-                            "block px-4 py-2 text-sm transition-colors",
-                            location.pathname === course.path
-                            ? "bg-accent text-accent-foreground"
-                            : "text-card-foreground hover:bg-accent hover:text-accent-foreground"
-                        )}
+                        className={desktopCourseClasses(course.path, course.isCompleted)}
                         >
                         <div className="font-medium">{course.code}</div>
                         <div className="text-xs text-muted-foreground">{course.name}</div>
@@ -141,12 +153,7 @@ const Navigation = () => {
                   <Link
                     key={course.path}
                     to={course.path}
-                    className={cn(
-                        "block px-4 py-2 text-sm transition-colors rounded-md",
-                        location.pathname === course.path
-                        ? "bg-accent text-accent-foreground"
-                        : "text-card-foreground hover:bg-accent hover:text-accent-foreground"
-                    )}
+                    className={mobileLinkClasses(course.path, course.isCompleted)}
                   >
                     <div className="font-medium">{course.code}</div>
                     <div className="text-xs text-muted-foreground">{course.name}</div>
@@ -196,4 +203,3 @@ const Navigation = () => {
 };
 
 export default Navigation;
-
