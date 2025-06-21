@@ -242,7 +242,7 @@ const AssignmentManager = ({ courseCode, type }: AssignmentManagerProps) => {
             </div>
           ) : assignment.file_type?.includes('pdf') ? (
             <iframe
-              src={`${assignment.file_url}#toolbar=0&navpanes=0&scrollbar=0&page=1&zoom=150`}
+              src={`${assignment.file_url}#toolbar=0&navpanes=0&scrollbar=0&page=1&zoom=FitH`}
               className="w-full h-full"
               title={assignment.title}
               frameBorder="0"

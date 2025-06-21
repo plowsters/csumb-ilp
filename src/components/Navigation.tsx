@@ -15,42 +15,80 @@ const Navigation = () => {
   const [showMobileCourses, setShowMobileCourses] = useState(false);
 
   const courses = [
-    { code: 'CST 300', name: 'Major ProSeminar', path: '/cst300', isCompleted: true },
-    { code: 'CST 338', name: 'Software Design', path: '/cst338', isCompleted: false },
-    { code: 'CST 311', name: 'Intro to Computer Networks', path: '/cst311', isCompleted: false },
-    { code: 'CST 334', name: 'Operating Systems', path: '/cst334', isCompleted: false },
-    { code: 'CST 336', name: 'Internet Programming', path: '/cst336', isCompleted: false },
-    { code: 'CST 363', name: 'Intro to Database Systems', path: '/cst363', isCompleted: false },
-    { code: 'CST 370', name: 'Design and Analysis of Algorithms', path: '/cst370', isCompleted: false },
-    { code: 'CST 438', name: 'Software Engineering', path: '/cst438', isCompleted: false },
-    { code: 'CST 462S', name: 'Race, Gender, Class in the Digital World', path: '/cst462s', isCompleted: false },
-    { code: 'CST 489', name: 'Capstone Project Planning', path: '/cst489', isCompleted: false },
-    { code: 'CST 499', name: 'Computer Science Capstone', path: '/cst499', isCompleted: false },
+    { code: 'CST 300', name: 'Major ProSeminar', path: '/cst300', status: 'completed' as const },
+    { code: 'CST 338', name: 'Software Design', path: '/cst338', status: 'in-progress' as const },
+    { code: 'CST 311', name: 'Intro to Computer Networks', path: '/cst311', status: 'tbd' as const },
+    { code: 'CST 334', name: 'Operating Systems', path: '/cst334', status: 'tbd' as const },
+    { code: 'CST 336', name: 'Internet Programming', path: '/cst336', status: 'tbd' as const },
+    { code: 'CST 363', name: 'Intro to Database Systems', path: '/cst363', status: 'tbd' as const },
+    { code: 'CST 370', name: 'Design and Analysis of Algorithms', path: '/cst370', status: 'tbd' as const },
+    { code: 'CST 438', name: 'Software Engineering', path: '/cst438', status: 'tbd' as const },
+    { code: 'CST 462S', name: 'Race, Gender, Class in the Digital World', path: '/cst462s', status: 'tbd' as const },
+    { code: 'CST 489', name: 'Capstone Project Planning', path: '/cst489', status: 'tbd' as const },
+    { code: 'CST 499', name: 'Computer Science Capstone', path: '/cst499', status: 'tbd' as const },
   ];
 
-  const mobileLinkClasses = (path: string, isCompleted?: boolean) => cn(
-    "block px-3 py-2 rounded-md text-base font-medium transition-colors text-left",
-    isCompleted && "bg-green-100 dark:bg-green-900/30 border border-green-200 dark:border-green-700/50",
-    location.pathname === path && !isCompleted
-      ? "bg-accent text-accent-foreground"
-      : location.pathname === path && isCompleted
-      ? "bg-green-200 dark:bg-green-800/50 text-green-900 dark:text-green-100"
-      : !isCompleted
-      ? "text-muted-foreground hover:text-accent-foreground hover:bg-accent"
-      : "text-green-800 dark:text-green-200 hover:bg-green-200 dark:hover:bg-green-800/50"
-  );
+  const getMobileLinkClasses = (path: string, status?: 'completed' | 'in-progress' | 'tbd') => {
+    const baseClasses = "block px-3 py-2 rounded-md text-base font-medium transition-colors text-left";
+    
+    if (status === 'completed') {
+      return cn(
+        baseClasses,
+        "bg-green-100 dark:bg-green-900/30 border border-green-200 dark:border-green-700/50",
+        location.pathname === path
+          ? "bg-green-200 dark:bg-green-800/50 text-green-900 dark:text-green-100"
+          : "text-green-800 dark:text-green-200 hover:bg-green-200 dark:hover:bg-green-800/50"
+      );
+    }
+    
+    if (status === 'in-progress') {
+      return cn(
+        baseClasses,
+        "bg-blue-100 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700/50",
+        location.pathname === path
+          ? "bg-blue-200 dark:bg-blue-800/50 text-blue-900 dark:text-blue-100"
+          : "text-blue-800 dark:text-blue-200 hover:bg-blue-200 dark:hover:bg-blue-800/50"
+      );
+    }
+    
+    return cn(
+      baseClasses,
+      location.pathname === path
+        ? "bg-accent text-accent-foreground"
+        : "text-muted-foreground hover:text-accent-foreground hover:bg-accent"
+    );
+  };
 
-  const desktopCourseClasses = (path: string, isCompleted?: boolean) => cn(
-    "block px-4 py-2 text-sm transition-colors",
-    isCompleted && "bg-green-100 dark:bg-green-900/30 border-l-2 border-green-500",
-    location.pathname === path && !isCompleted
-      ? "bg-accent text-accent-foreground"
-      : location.pathname === path && isCompleted
-      ? "bg-green-200 dark:bg-green-800/50 text-green-900 dark:text-green-100"
-      : !isCompleted
-      ? "text-card-foreground hover:bg-accent hover:text-accent-foreground"
-      : "text-green-800 dark:text-green-200 hover:bg-green-200 dark:hover:bg-green-800/50"
-  );
+  const getDesktopCourseClasses = (path: string, status?: 'completed' | 'in-progress' | 'tbd') => {
+    const baseClasses = "block px-4 py-2 text-sm transition-colors";
+    
+    if (status === 'completed') {
+      return cn(
+        baseClasses,
+        "bg-green-100 dark:bg-green-900/30 border-l-2 border-green-500",
+        location.pathname === path
+          ? "bg-green-200 dark:bg-green-800/50 text-green-900 dark:text-green-100"
+          : "text-green-800 dark:text-green-200 hover:bg-green-200 dark:hover:bg-green-800/50"
+      );
+    }
+    
+    if (status === 'in-progress') {
+      return cn(
+        baseClasses,
+        "bg-blue-100 dark:bg-blue-900/30 border-l-2 border-blue-500",
+        location.pathname === path
+          ? "bg-blue-200 dark:bg-blue-800/50 text-blue-900 dark:text-blue-100"
+          : "text-blue-800 dark:text-blue-200 hover:bg-blue-200 dark:hover:bg-blue-800/50"
+      );
+    }
+    
+    return cn(
+      baseClasses,
+      location.pathname === path
+        ? "bg-accent text-accent-foreground"
+        : "text-card-foreground hover:bg-accent hover:text-accent-foreground"
+    );
+  };
 
   return (
     <>
@@ -90,7 +128,7 @@ const Navigation = () => {
                         <Link
                         key={course.path}
                         to={course.path}
-                        className={desktopCourseClasses(course.path, course.isCompleted)}
+                        className={getDesktopCourseClasses(course.path, course.status)}
                         >
                         <div className="font-medium">{course.code}</div>
                         <div className="text-xs text-muted-foreground">{course.name}</div>
@@ -136,13 +174,13 @@ const Navigation = () => {
       
       <div className="md:hidden bg-card border-b border-border shadow-sm">
         <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-          <Link to="/" className={mobileLinkClasses("/")}>
+          <Link to="/" className={getMobileLinkClasses("/")}>
             Home
           </Link>
           <div>
             <button 
               onClick={() => setShowMobileCourses(!showMobileCourses)}
-              className={cn(mobileLinkClasses("#"), "w-full flex justify-between items-center")}
+              className={cn(getMobileLinkClasses("#"), "w-full flex justify-between items-center")}
             >
               <span>Courses</span>
               <ChevronDown className={cn("h-5 w-5 transition-transform", showMobileCourses && "rotate-180")} />
@@ -153,7 +191,7 @@ const Navigation = () => {
                   <Link
                     key={course.path}
                     to={course.path}
-                    className={mobileLinkClasses(course.path, course.isCompleted)}
+                    className={getMobileLinkClasses(course.path, course.status)}
                   >
                     <div className="font-medium">{course.code}</div>
                     <div className="text-xs text-muted-foreground">{course.name}</div>
