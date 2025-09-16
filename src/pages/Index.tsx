@@ -3,21 +3,9 @@ import React from 'react';
 import Layout from '../components/Layout';
 import CourseCard from '../components/CourseCard';
 import { GraduationCap, Target, User } from 'lucide-react';
+import { courses } from '../data/courses';
 
 const Index = () => {
-  const courses = [
-    { code: 'CST 300', name: 'Major ProSeminar', units: 4, path: '/cst300', status: 'completed' as const },
-    { code: 'CST 338', name: 'Software Design', units: 4, path: '/cst338', status: 'completed' as const },
-    { code: 'CST 311', name: 'Introduction to Computer Networks', units: 4, path: '/cst311', status: 'tbd' as const },
-    { code: 'CST 334', name: 'Operating Systems', units: 4, path: '/cst334', status: 'tbd' as const },
-    { code: 'CST 336', name: 'Internet Programming', units: 4, path: '/cst336', status: 'tbd' as const },
-    { code: 'CST 363', name: 'Introduction to Database Systems', units: 4, path: '/cst363', status: 'in-progress' as const },
-    { code: 'CST 370', name: 'Design and Analysis of Algorithms', units: 4, path: '/cst370', status: 'tbd' as const },
-    { code: 'CST 438', name: 'Software Engineering', units: 4, path: '/cst438', status: 'tbd' as const },
-    { code: 'CST 462S', name: 'Race, Gender, Class in the Digital World', units: 3, path: '/cst462s', status: 'tbd' as const },
-    { code: 'CST 489', name: 'Capstone Project Planning', units: 1, path: '/cst489', status: 'tbd' as const },
-    { code: 'CST 499', name: 'Computer Science Capstone', units: 4, path: '/cst499', status: 'tbd' as const },
-  ];
 
   return (
     <Layout>

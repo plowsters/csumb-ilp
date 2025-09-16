@@ -7,26 +7,13 @@ import AdminLogin from './AdminLogin';
 import { Button } from './ui/button';
 import { LogIn, LogOut, User, ChevronDown } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
+import { courses } from '../data/courses';
 
 const Navigation = () => {
   const location = useLocation();
   const { user, logout } = useAuth();
   const [showLogin, setShowLogin] = useState(false);
   const [showMobileCourses, setShowMobileCourses] = useState(false);
-
-  const courses = [
-    { code: 'CST 300', name: 'Major ProSeminar', path: '/cst300', status: 'completed' as const },
-    { code: 'CST 338', name: 'Software Design', path: '/cst338', status: 'in-progress' as const },
-    { code: 'CST 311', name: 'Intro to Computer Networks', path: '/cst311', status: 'tbd' as const },
-    { code: 'CST 334', name: 'Operating Systems', path: '/cst334', status: 'tbd' as const },
-    { code: 'CST 336', name: 'Internet Programming', path: '/cst336', status: 'tbd' as const },
-    { code: 'CST 363', name: 'Intro to Database Systems', path: '/cst363', status: 'tbd' as const },
-    { code: 'CST 370', name: 'Design and Analysis of Algorithms', path: '/cst370', status: 'tbd' as const },
-    { code: 'CST 438', name: 'Software Engineering', path: '/cst438', status: 'tbd' as const },
-    { code: 'CST 462S', name: 'Race, Gender, Class in the Digital World', path: '/cst462s', status: 'tbd' as const },
-    { code: 'CST 489', name: 'Capstone Project Planning', path: '/cst489', status: 'tbd' as const },
-    { code: 'CST 499', name: 'Computer Science Capstone', path: '/cst499', status: 'tbd' as const },
-  ];
 
   const getMobileLinkClasses = (path: string, status?: 'completed' | 'in-progress' | 'tbd') => {
     const baseClasses = "block px-3 py-2 rounded-md text-base font-medium transition-colors text-left";

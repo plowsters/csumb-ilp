@@ -15,7 +15,7 @@ interface CourseTemplateProps {
   units: number;
   description?: string;
   assignments?: Assignment[];
-  isCompleted?: boolean;
+  status?: 'completed' | 'in-progress' | 'tbd';
 }
 
 const CourseTemplate = ({ 
@@ -24,7 +24,7 @@ const CourseTemplate = ({
   units, 
   description,
   assignments = [],
-  isCompleted = false 
+  status = 'tbd'
 }: CourseTemplateProps) => {
   return (
     <Layout>
@@ -38,10 +38,16 @@ const CourseTemplate = ({
               <div className="flex items-center text-sm text-muted-foreground">
                 <Calendar className="h-4 w-4 mr-2" />
                 <span>{units} Units</span>
-                {isCompleted && (
+                {status === 'completed' && (
                   <>
                     <span className="mx-2">•</span>
                     <span className="text-green-600 font-medium">Completed</span>
+                  </>
+                )}
+                {status === 'in-progress' && (
+                  <>
+                    <span className="mx-2">•</span>
+                    <span className="text-blue-600 font-medium">In Progress</span>
                   </>
                 )}
               </div>
