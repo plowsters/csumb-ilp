@@ -37,7 +37,7 @@ export const courses: Course[] = [
     name: 'Operating Systems', 
     units: 4, 
     path: '/cst334', 
-    status: 'tbd',
+    status: 'in-progress',
     description: "Students in this course will learn about the use and design of modern operating systems, focusing on Linux. On the 'use' side, students will learn the Linux command line, to write shell scripts, and to build programs with GNU utilities like awk, sed, and make. On the 'design' side, students will develop a deep understanding of process management, memory management, file systems, and concurrency, and how they apply to modern technologies like virtualization and cloud computing."
   },
   { 
@@ -53,7 +53,7 @@ export const courses: Course[] = [
     name: 'Introduction to Database Systems', 
     units: 4, 
     path: '/cst363', 
-    status: 'in-progress',
+    status: 'completed',
     description: "This course provides balanced coverage of database use and design, focusing on relational databases. Students will learn to design relational schemas, write SQL queries, access a DB programmatically, and perform database administration. Students will gain a working knowledge of the algorithms and data structures used in query evaluation and transaction processing. Students will also learn to apply newer database technologies such as XML, NoSQL, and Hadoop."
   },
   { 
