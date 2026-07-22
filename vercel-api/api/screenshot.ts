@@ -50,7 +50,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Check database
   if (pgError) {
     console.error("DB Initialization Error:", pgError);
-    return res.status(500).json({ error: "Database connection failed", details: pgError.message });
+    return res.status(500).json({ error: "Database connection failed" });
   }
 
   if (!pg) {
@@ -76,7 +76,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Generate screenshot using screenshotmachine.com API with your key
     const screenshotUrl = `https://api.screenshotmachine.com?key=${apiKey}&url=${encodeURIComponent(url)}&dimension=1920x1080&format=png`;
     
-    console.log(`Fetching screenshot from: ${screenshotUrl}`);
+    console.log(`Fetching screenshot for target URL: ${url}`);
     
     // Fetch the screenshot image
     const screenshotResponse = await fetch(screenshotUrl);
@@ -106,7 +106,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   } catch (error) {
     console.error("Screenshot generation error:", error);
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    return res.status(500).json({ error: "Screenshot generation failed", details: errorMessage });
+    return res.status(500).json({ error: "Screenshot generation failed" });
   }
 }

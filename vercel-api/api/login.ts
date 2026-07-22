@@ -28,7 +28,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (authError) {
     console.error("Auth/DB Initialization Error:", authError);
-    return res.status(500).json({ error: "Server initialization failed", details: authError.message });
+    return res.status(500).json({ error: "Internal server error" });
   }
 
   if (!lucia || !pg) {
@@ -100,13 +100,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
   } catch (error) {
     console.error("Login error:", error);
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
     const errorStack = error instanceof Error ? error.stack : "No stack trace";
     console.error("Error stack:", errorStack);
-    return res.status(500).json({ 
-      error: "Internal server error", 
-      details: errorMessage,
-      type: error?.constructor?.name || "Unknown"
-    });
+    return res.status(500).json({ error: "Internal server error" });
   }
 }
