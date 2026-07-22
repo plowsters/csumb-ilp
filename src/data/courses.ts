@@ -29,7 +29,7 @@ export const courses: Course[] = [
     name: 'Introduction to Computer Networks', 
     units: 4, 
     path: '/cst311', 
-    status: 'tbd',
+    status: 'completed',
     description: "Survey of Telecommunication and Data Communication Technology Fundamentals, Local Area Network, Wide Area Network, Internet and internetworking protocols including TCP/IP, network security and performance, emerging industry trends such as voice over the network and high speed networking. Designed as a foundation for students who wish to pursue more advanced network studies including certificate programs. Includes hands-on networking labs that incorporate Cisco CCNA lab components."
   },
   { 
@@ -37,7 +37,7 @@ export const courses: Course[] = [
     name: 'Operating Systems', 
     units: 4, 
     path: '/cst334', 
-    status: 'in-progress',
+    status: 'completed',
     description: "Students in this course will learn about the use and design of modern operating systems, focusing on Linux. On the 'use' side, students will learn the Linux command line, to write shell scripts, and to build programs with GNU utilities like awk, sed, and make. On the 'design' side, students will develop a deep understanding of process management, memory management, file systems, and concurrency, and how they apply to modern technologies like virtualization and cloud computing."
   },
   { 
@@ -45,7 +45,7 @@ export const courses: Course[] = [
     name: 'Internet Programming', 
     units: 4, 
     path: '/cst336', 
-    status: 'tbd',
+    status: 'in-progress',
     description: "Provides students with dynamic web application development skills, focusing on the integration of server-side programming, database connectivity, and client-side scripting. Coverage includes the Internet architecture, responsive design, RESTful web services, and Web APIs."
   },
   { 
