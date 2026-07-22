@@ -31,7 +31,7 @@ async function generateScreenshotForLink(fileUrl: string): Promise<string | null
       return null;
     }
 
-    console.log(`Generating screenshot for: ${fileUrl}`);
+    console.log(`Generating screenshot for target URL: ${fileUrl}`);
     
     const screenshotUrl = `https://api.screenshotmachine.com?key=${apiKey}&url=${encodeURIComponent(fileUrl)}&dimension=1920x1080&format=png`;
     
@@ -74,7 +74,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (pgError) {
     console.error("DB Initialization Error:", pgError);
-    return res.status(500).json({ error: "Database connection failed", details: pgError.message });
+    return res.status(500).json({ error: "Internal server error" });
   }
 
   if (!pg) {
@@ -171,7 +171,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: "Method not allowed" });
   } catch (error) {
     console.error("Assignment API error:", error);
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    return res.status(500).json({ error: "Internal server error", details: errorMessage });
+    return res.status(500).json({ error: "Internal server error" });
   }
 }
