@@ -23,7 +23,7 @@ const Index = () => {
               </div>
               <h1 className="text-4xl font-bold mb-4">Bug Plowman</h1>
               <p className="text-xl text-blue-100 max-w-2xl mx-auto">
-                CS Online Summer '25 Cohort | California State University, Monterey Bay
+                CS Online Class of '28 | California State University, Monterey Bay
               </p>
             </div>
           </div>
