@@ -4,12 +4,12 @@
   "type": "module",
   "dependencies": {
     "@lucia-auth/adapter-postgresql": "^3.1.2",
-    "@vercel/blob": "^1.1.1",
+    "@vercel/blob": "^2.6.1",
     "lucia": "^3.2.2",
     "postgres": "^3.4.9"
   },
   "devDependencies": {
-    "@types/node": "^20.19.43",
+    "@types/node": "^22.20.1",
     "@vercel/node": "^5.8.26",
     "typescript": "^5.9.3"
   }
